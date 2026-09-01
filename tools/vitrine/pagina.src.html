@@ -1,0 +1,648 @@
+<title>As travas do Portal TI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --ground: #f2f5f7;
+    --surface: #ffffff;
+    --ink: #131820;
+    --ink-soft: #3d4753;
+    --muted: #5f6b79;
+    --line: #dbe2e9;
+    --line-soft: #e8edf2;
+    --accent: #125f79;
+    --accent-soft: #e2eff3;
+    --refuse: #9e2d45;
+    --refuse-soft: #f9e9ec;
+    --shadow: 0 1px 2px rgba(19, 24, 32, .05), 0 12px 28px -18px rgba(19, 24, 32, .28);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0d1116;
+      --surface: #151b23;
+      --ink: #e5eaf0;
+      --ink-soft: #c2cbd6;
+      --muted: #95a0ae;
+      --line: #232c37;
+      --line-soft: #1c242d;
+      --accent: #5cb4cf;
+      --accent-soft: #14303b;
+      --refuse: #e37e93;
+      --refuse-soft: #33191f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 14px 30px -18px rgba(0, 0, 0, .7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #0d1116;
+    --surface: #151b23;
+    --ink: #e5eaf0;
+    --ink-soft: #c2cbd6;
+    --muted: #95a0ae;
+    --line: #232c37;
+    --line-soft: #1c242d;
+    --accent: #5cb4cf;
+    --accent-soft: #14303b;
+    --refuse: #e37e93;
+    --refuse-soft: #33191f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 14px 30px -18px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 24px 96px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .prose { max-width: 660px; }
+
+  /* ---------- cabeçalho ---------- */
+  header.topo {
+    padding: 72px 0 40px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 56px;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+
+  h1 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(40px, 6vw, 62px);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+    margin: 0 0 22px;
+  }
+
+  .standfirst {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(19px, 2.2vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 620px;
+    margin: 0 0 30px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 26px;
+  }
+
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 3px 9px;
+    background: var(--surface);
+  }
+
+  a.repo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .15s;
+  }
+  a.repo:hover, a.repo:focus-visible { border-bottom-color: var(--accent); }
+
+  .aviso {
+    margin-top: 30px;
+    padding: 14px 18px;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 660px;
+  }
+
+  /* ---------- seções ---------- */
+  section { margin-bottom: 72px; }
+
+  h2 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: clamp(27px, 3.4vw, 34px);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -.015em;
+    text-wrap: balance;
+    margin: 0 0 18px;
+  }
+
+  h3 {
+    font-family: Newsreader, Georgia, serif;
+    font-size: 25px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+    margin: 0 0 14px;
+  }
+
+  p { margin: 0 0 18px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* ---------- operações ---------- */
+  .ops {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 28px;
+  }
+
+  .op { background: var(--surface); padding: 20px 22px; }
+  .op h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    letter-spacing: -.005em;
+  }
+  .op p { font-size: 14.5px; color: var(--muted); line-height: 1.5; margin: 0; }
+
+  /* ---------- as decisões ---------- */
+  .decisao {
+    padding-top: 40px;
+    border-top: 1px solid var(--line);
+    margin-top: 40px;
+  }
+  .decisao:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+
+  .falha {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: .06em;
+    color: var(--refuse);
+    margin: 0 0 10px;
+  }
+
+  .veredito {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    background: var(--refuse-soft);
+    border-left: 3px solid var(--refuse);
+    padding: 11px 16px;
+    margin: 26px 0 0;
+    max-width: 660px;
+  }
+  .veredito b { color: var(--refuse); font-weight: 500; letter-spacing: .04em; }
+
+  /* ---------- figuras ---------- */
+  figure {
+    margin: 30px 0 0;
+    max-width: 1080px;
+  }
+
+  figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    box-shadow: var(--shadow);
+    background: var(--surface);
+  }
+
+  figcaption {
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 11px;
+    max-width: 660px;
+  }
+
+  /* ---------- código ---------- */
+  .codigo {
+    margin: 26px 0 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow-x: auto;
+    max-width: 720px;
+  }
+
+  .codigo-topo {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 11.5px;
+    letter-spacing: .06em;
+    color: var(--muted);
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  pre {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 16px;
+    color: var(--ink-soft);
+    white-space: pre;
+  }
+
+  pre .c { color: var(--muted); font-style: italic; }
+  pre .k { color: var(--accent); }
+  pre .r { color: var(--refuse); }
+
+  /* ---------- arquitetura ---------- */
+  .arvore {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px 22px;
+    margin: 26px 0 0;
+    overflow-x: auto;
+    max-width: 720px;
+    white-space: pre;
+  }
+  .arvore span { color: var(--muted); }
+
+  /* ---------- rodapé ---------- */
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 32px;
+    font-size: 14.5px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 660px;
+  }
+  footer a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer a:hover, footer a:focus-visible { border-bottom-color: var(--accent); }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 640px) {
+    body { font-size: 16px; padding: 0 18px 64px; }
+    header.topo { padding-top: 48px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="topo">
+    <p class="eyebrow">Demonstração pública · dados fictícios</p>
+    <h1>As travas do Portal TI</h1>
+    <p class="standfirst">
+      Um portal interno que provisiona e corta acesso de pessoas em três sistemas de uma vez.
+      A parte interessante não são as telas — são as cinco decisões sobre quando ele se recusa a agir.
+    </p>
+    <div class="meta">
+      <span class="chip">Flask 3</span>
+      <span class="chip">Graph API</span>
+      <span class="chip">LDAP</span>
+      <span class="chip">SOAP + SQL</span>
+      <span class="chip">SQLite</span>
+      <span class="chip">~6.000 linhas · 11 telas</span>
+    </div>
+    <a class="repo" href="https://github.com/gualmeidap/portal-ti-o365-demo">
+      github.com/gualmeidap/portal-ti-o365-demo →
+    </a>
+    <p class="aviso">
+      O portal em produção é privado. Esta é uma vitrine: pessoas, unidades e domínios foram
+      inventados do zero, e as integrações são simuladas em memória. As travas descritas aqui
+      rodam de verdade no código da demonstração — é o que ela existe para mostrar.
+    </p>
+  </header>
+
+  <section>
+    <div class="prose">
+      <h2>O trabalho que ele substituiu</h2>
+      <p>
+        O time de TI de uma universidade precisava criar e desligar acessos em três sistemas:
+        Microsoft 365, o diretório local e o ERP acadêmico-financeiro. Cada um era tratado
+        separadamente, por pessoas diferentes, com credenciais entregues de formas diferentes.
+        Uma pessoa contratada podia ter e-mail na segunda e o ERP só na quinta. Uma pessoa
+        desligada podia continuar entrando em um dos três por semanas.
+      </p>
+      <p>
+        O portal transformou isso em quatro operações, cada uma resolvendo os três sistemas
+        numa ação só.
+      </p>
+    </div>
+
+    <div class="ops">
+      <div class="op">
+        <h4>Criar colaborador</h4>
+        <p>Conta nos três sistemas, uma senha só, e-mail de credenciais pronto para envio.</p>
+      </div>
+      <div class="op">
+        <h4>Criar aluno</h4>
+        <p>Mesmo caminho, com o conjunto de sistemas que o vínculo pede.</p>
+      </div>
+      <div class="op">
+        <h4>Redefinir senha</h4>
+        <p>Uma senha nova, aplicada em todos os sistemas onde a pessoa existe.</p>
+      </div>
+      <div class="op">
+        <h4>Gestão de acesso</h4>
+        <p>Bloquear e reativar, por sistema ou em todos de uma vez.</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="__IMG_01-inicio__" alt="Painel inicial do portal, com o estado dos três sistemas, as quatro operações e as últimas ações registradas.">
+      <figcaption>O painel inicial. Os três sistemas, as quatro operações, e as últimas ações — todas com o resultado de cada sistema.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="__IMG_fluxo-criacao__" alt="Sequência animada: formulário de criação, resultado sistema por sistema e o e-mail de credenciais gerado.">
+      <figcaption>O fluxo de criação inteiro: formulário, resultado sistema por sistema, e o e-mail que a pessoa recebe.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="prose">
+      <h2>Cinco decisões que não vêm de tutorial</h2>
+      <p>
+        Um CRUD que escreve em três APIs é um exercício de fim de semana. O que separa isso de
+        uma ferramenta que se pode entregar a um time inteiro são as recusas — e cada uma delas
+        nasceu de um jeito específico de dar errado.
+      </p>
+    </div>
+
+    <div class="decisao">
+      <p class="falha">quando a integração não sabe onde vai escrever</p>
+      <h3>Falha fechada</h3>
+      <div class="prose">
+        <p>
+          Antes de escrever qualquer coisa, cada integração confirma <em>contra qual base</em> vai
+          escrever. O Microsoft 365 confere se o token vale para o ambiente esperado. O diretório
+          lê a raiz da conexão já aberta e compara com a configurada. O ERP faz a consulta que
+          distingue homologação de produção — dois ambientes com o mesmo desenho e a mesma cara.
+        </p>
+        <p>
+          Duas coisas importam, e é onde a implementação ingênua erra. A primeira: confirmar não
+          é opcional. O caminho fácil é tratar a confirmação como aviso e seguir mesmo assim,
+          porque <em>provavelmente</em> é o ambiente certo — e provavelmente não é garantia sobre
+          a qual valha a pena escrever em três sistemas de identidade.
+        </p>
+        <p>
+          A segunda está na ordem: <strong>todas as bases são confirmadas antes de qualquer uma
+          ser escrita</strong>. Confirmar sistema a sistema, escrevendo conforme avança, deixa a
+          pessoa criada em dois e ausente no terceiro quando o último falha. Meio provisionamento
+          é mais caro de descobrir e de desfazer do que uma recusa — ninguém abre chamado dizendo
+          que está com acesso demais.
+        </p>
+      </div>
+
+      <div class="codigo">
+        <div class="codigo-topo">portal_demo/orquestracao.py</div>
+        <pre><span class="c"># a ordem é a trava</span>
+<span class="k">for</span> chave <span class="k">in</span> sistemas:
+    <span class="k">try</span>:
+        self.providers[chave].confirmar_base()
+    <span class="k">except</span> <span class="r">BaseNaoConfirmada</span> <span class="k">as</span> recusa:
+        execucao.recusada = <span class="k">True</span>
+        <span class="k">return</span> execucao        <span class="c"># nada foi escrito, e nada será</span>
+
+<span class="k">for</span> chave <span class="k">in</span> sistemas:            <span class="c"># só agora se escreve</span>
+    ...</pre>
+      </div>
+
+      <figure>
+        <img src="__IMG_09-falha-fechada__" alt="Tela de operação recusada: o diretório não confirmou a base, e nada foi escrito em nenhum sistema.">
+        <figcaption>A recusa é uma tela, não um erro genérico: diz qual sistema não confirmou, por quê, e que nada foi escrito.</figcaption>
+      </figure>
+
+      <p class="veredito"><b>RECUSADO</b> — nenhum dos três sistemas foi tocado</p>
+    </div>
+
+    <div class="decisao">
+      <p class="falha">quando o alvo é quem opera a ferramenta</p>
+      <h3>Proteção de alvo</h3>
+      <div class="prose">
+        <p>
+          Nenhum técnico bloqueia outro técnico, nem a equipe que mantém o portal. Vale para
+          <strong>todos os perfis</strong>, inclusive os que bloqueiam qualquer outra pessoa da
+          instituição. Quem tenta perde o acesso ao portal na mesma requisição.
+        </p>
+        <p>
+          O raciocínio: um portal que corta acesso nos três sistemas de uma vez é uma ótima
+          ferramenta para quem administra e uma ótima arma para quem foi comprometido. Uma conta
+          de TI tomada — ou um técnico saindo em más condições — tem nas mãos exatamente o botão
+          que desliga a capacidade de resposta do resto do time.
+        </p>
+        <p>
+          Repare no que <em>não</em> é: não é um diálogo de “tem certeza?”, nem um alerta que
+          alguém lê no dia seguinte. É recusa, encerramento da sessão e registro de segurança,
+          nessa ordem, antes de a resposta chegar à tela.
+        </p>
+      </div>
+
+      <figure>
+        <img src="__IMG_08-alvo-protegido__" alt="Tela de alvo protegido: operação recusada, nada alterado, e aviso de que o acesso ao portal foi encerrado.">
+        <figcaption>A tela que quem tentou recebe. O cabeçalho já não mostra um perfil: a sessão caiu antes da resposta ser montada.</figcaption>
+      </figure>
+
+      <p class="veredito"><b>RECUSADO</b> — e a sessão de quem pediu caiu junto</p>
+    </div>
+
+    <div class="decisao">
+      <p class="falha">quando o pedido não vem pela tela</p>
+      <h3>Perfis com escopo real</h3>
+      <div class="prose">
+        <p>
+          Cada perfil alcança um conjunto de operações e um conjunto de sistemas. Quem opera só o
+          e-mail não chega ao diretório nem ao ERP. O menu reflete isso, mas o menu é
+          conveniência: os itens fora do escopo continuam visíveis, com cadeado, de propósito.
+          Esconder o botão resolve o engano, não a tentativa.
+        </p>
+        <p>
+          A verificação acontece na rota <strong>e de novo na orquestração</strong>, que é o único
+          caminho até as integrações. Enquanto a checagem estiver lá, nenhuma rota nova escrita
+          com pressa contorna a política por esquecimento. URL digitada na mão, formulário
+          adulterado e aba antiga dão todos no mesmo 403.
+        </p>
+      </div>
+
+      <figure>
+        <img src="__IMG_00-login__" alt="Tela de entrada listando os quatro perfis técnicos, cada um com os sistemas que alcança.">
+        <figcaption>
+          A demonstração troca a senha por uma escolha de perfil logo na entrada — é o escopo,
+          e não a credencial, que muda o que as telas seguintes deixam fazer. A sessão é exigida
+          por um <code>before_request</code>: vale para todas as rotas de uma vez, então rota nova
+          nasce protegida por omissão.
+        </figcaption>
+      </figure>
+
+      <figure>
+        <img src="__IMG_11-escopo-recusado-no-servidor__" alt="Página 403 explicando que o perfil não executa a operação pedida, com o caminho da URL que foi tentada.">
+        <figcaption>O mesmo perfil que vê o item com cadeado no menu recebe isto ao tentar o caminho direto.</figcaption>
+      </figure>
+
+      <p class="veredito"><b>403</b> — a política decide, não a interface que enviou o pedido</p>
+    </div>
+
+    <div class="decisao">
+      <p class="falha">quando quem lê o registro pode ser o investigado</p>
+      <h3>Auditoria como produto</h3>
+      <div class="prose">
+        <p>
+          Uma linha por ação, com o resultado de <em>cada</em> sistema na mesma linha. Quem
+          investiga não cruza três logs para descobrir o que aconteceu. E as recusas aparecem com
+          o mesmo destaque dos sucessos, porque uma tentativa negada costuma ser mais interessante
+          que uma operação bem-sucedida.
+        </p>
+        <p>
+          Os eventos de segurança — tentativa contra alvo protegido, acesso negado por escopo,
+          sessão encerrada — não aparecem para quem opera, só para o perfil de auditoria. Quem
+          pode ser objeto de uma apuração não recebe as linhas dela.
+        </p>
+        <p>
+          O filtro está na consulta ao banco, não na tela. Uma linha que o perfil não pode ver
+          nunca chega ao template, então não há como vazar pelo código-fonte da página. Nem a
+          <strong>contagem</strong> de eventos ocultos é exposta: um número já diria que houve o
+          que apurar, e quando.
+        </p>
+      </div>
+
+      <div class="codigo">
+        <div class="codigo-topo">portal_demo/auditoria.py</div>
+        <pre>consulta = <span class="r">"SELECT * FROM eventos"</span>
+<span class="k">if not</span> incluir_seguranca:
+    consulta += <span class="r">" WHERE categoria &lt;&gt; 'seguranca'"</span></pre>
+      </div>
+
+      <figure>
+        <img src="__IMG_13-auditoria-seguranca__" alt="Tabela de auditoria vista pelo perfil de segurança, com linhas operacionais e linhas de segurança marcadas.">
+        <figcaption>A mesma tabela, vista pelo perfil de auditoria. As linhas marcadas “segurança” não existem para nenhum outro perfil.</figcaption>
+      </figure>
+
+      <p class="veredito"><b>FILTRADO NA CONSULTA</b> — a linha não chega ao template</p>
+    </div>
+
+    <div class="decisao">
+      <p class="falha">quando o login não é o mesmo em lugar nenhum</p>
+      <h3>Uma senha, três logins</h3>
+      <div class="prose">
+        <p>
+          O nome de acesso é diferente nos três sistemas: <code>nome@dominio</code> no Microsoft
+          365, <code>DOMINIO\nome</code> no diretório, e um usuário curto no ERP. A pessoa recebia
+          uma credencial, tentava o mesmo nome no segundo sistema, não entrava, e abria chamado no
+          primeiro dia de trabalho.
+        </p>
+        <p>
+          A senha passou a ser uma só para os três — decisão deliberada, porque três senhas
+          distintas viravam três bilhetes colados no monitor — entregue num e-mail que diz, para
+          cada sistema, com qual nome se entra e para que aquilo serve. Ela nasce temporária, com
+          troca obrigatória no primeiro acesso, e é gerada com palavras fáceis de ditar por
+          telefone: boa parte dos primeiros acessos acontece com alguém lendo a senha em voz alta
+          para outra pessoa.
+        </p>
+      </div>
+
+      <figure>
+        <img src="__IMG_04-email-credenciais__" alt="Pré-visualização do e-mail de credenciais, com a senha única e uma tabela de qual login usar em cada sistema.">
+        <figcaption>O e-mail de credenciais. A tabela existe porque a pergunta “com qual nome eu entro aqui?” era a origem da maioria dos chamados de primeiro acesso.</figcaption>
+      </figure>
+
+      <p class="veredito"><b>ENTREGUE</b> — uma senha, três logins, e o e-mail diz qual é qual</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="prose">
+      <h2>Gestão de acesso</h2>
+      <p>
+        A tela mais usada. A situação de cada pessoa nos três sistemas em uma linha, e o caso do
+        desligamento resolvido em uma ação: um pedido, uma verificação de política, uma linha de
+        auditoria com o resultado de cada sistema.
+      </p>
+    </div>
+    <figure>
+      <img src="__IMG_05-gestao-acesso__" alt="Lista de pessoas com o estado de cada uma nos três sistemas, em colunas.">
+      <figcaption>Ativo, bloqueado ou sem conta — por sistema, sem abrir três consoles.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <div class="prose">
+      <h2>Arquitetura</h2>
+      <p>
+        Cada sistema implementa a mesma interface — <code>existe</code>, <code>criar</code>,
+        <code>ativar</code>, <code>desativar</code>, <code>redefinir_senha</code> — e a
+        orquestração não sabe falar com nenhum sistema específico. Ela percorre providers e lê
+        resultados.
+      </p>
+    </div>
+
+    <div class="arvore">portal_demo/
+├── providers/
+│   ├── base.py           <span>a interface e a exceção de base não confirmada</span>
+│   ├── microsoft365.py   <span>Graph API</span>
+│   ├── diretorio.py      <span>LDAP</span>
+│   └── erp.py            <span>SOAP + SQL</span>
+├── orquestracao.py       <span>confirma todas as bases, depois escreve</span>
+├── politicas.py          <span>escopo de perfil e proteção de alvo</span>
+├── auditoria.py          <span>uma linha por ação, filtrada por categoria</span>
+└── credenciais.py        <span>senha única e o e-mail que explica onde ela vale</span></div>
+
+    <div class="prose" style="margin-top: 26px;">
+      <p>
+        Acrescentar um quarto sistema é escrever mais um arquivo em <code>providers/</code>. Nem a
+        orquestração nem as telas mudam. É também o que torna esta demonstração possível: os
+        providers aqui guardam estado em memória em vez de falar com a rede, e a orquestração não
+        sabe a diferença — por isso as travas podem ser exercitadas de verdade, sem um único
+        segredo de produção.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      Instituição, domínios, pessoas, unidades e identificadores desta demonstração foram
+      inventados do zero. Nada foi copiado, anonimizado ou borrado a partir de um ambiente real —
+      inclusive porque campo borrado em captura de tela costuma vazar pelo cabeçalho ou pelo
+      rodapé aquilo que o corpo escondeu. O domínio <code>.example</code> é reservado pela
+      RFC 2606 para exemplos e nunca resolve na internet.
+    </p>
+    <p>
+      Código, capturas e o roteiro que as gera:
+      <a href="https://github.com/gualmeidap/portal-ti-o365-demo">github.com/gualmeidap/portal-ti-o365-demo</a>
+    </p>
+  </footer>
+
+</div>

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Alterar senha{% endblock %}
+{% block cabecalho %}Alterar Senha{% endblock %}
+{% block subtitulo %}Uma senha nova, aplicada onde a pessoa existe.{% endblock %}
+
+{% block conteudo %}
+<form method="post" class="max-w-3xl bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
+  <div class="flex items-center gap-3 pb-5 border-b border-gray-100">
+    <div class="p-2.5 rounded-lg bg-brand-gold/10 text-brand-gold">
+      <i data-lucide="key-round" class="w-5 h-5"></i>
+    </div>
+    <div>
+      <h3 class="text-base font-bold text-gray-800">Redefinição de credencial</h3>
+      <p class="text-xs text-gray-400">A mesma senha vale nos sistemas marcados.</p>
+    </div>
+  </div>
+
+  <div>
+    <label class="block text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">Pessoa</label>
+    <select name="login" class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-gold/40 focus:border-brand-gold">
+      {% for pessoa in pessoas %}
+        <option value="{{ pessoa.login }}">{{ pessoa.nome }} — {{ pessoa.unidade }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <span class="block text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-3">Sistemas de destino</span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {% for chave, info in dados.SISTEMAS.items() %}
+        {% set no_escopo = chave in perfil_info.sistemas %}
+        <label class="flex items-center gap-2.5 p-3.5 rounded-lg border transition
+                      {% if no_escopo %}border-gray-200 hover:border-brand-gold/40 cursor-pointer{% else %}border-gray-100 bg-gray-50{% endif %}">
+          <input type="checkbox" name="sistemas" value="{{ chave }}"
+                 {% if no_escopo %}checked{% else %}disabled{% endif %}
+                 class="rounded border-gray-300 text-brand-gold focus:ring-brand-gold">
+          <span class="text-sm font-medium {% if no_escopo %}text-gray-800{% else %}text-gray-400{% endif %}">{{ info.rotulo }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3.5 flex gap-3">
+    <i data-lucide="info" class="w-4 h-4 text-brand-gold shrink-0 mt-0.5"></i>
+    <p class="text-[13px] text-gray-600 leading-relaxed">
+      O e-mail que sai depois diz, para cada sistema, com qual nome de acesso entrar — porque
+      o login não é o mesmo nos três.
+    </p>
+  </div>
+
+  <button class="bg-brand-gold hover:opacity-90 text-white text-sm font-semibold rounded-lg px-5 py-2.5 shadow-sm shadow-brand-gold/20 flex items-center gap-2">
+    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+    Gerar e aplicar senha
+  </button>
+</form>
+{% endblock %}

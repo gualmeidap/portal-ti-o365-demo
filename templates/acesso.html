@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block titulo %}Gestão de acesso{% endblock %}
+{% block cabecalho %}Gestão de Acesso{% endblock %}
+{% block subtitulo %}Situação de cada pessoa nos três sistemas, em uma linha.{% endblock %}
+
+{% block conteudo %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+    <div class="p-2 rounded-lg bg-red-50 text-red-600">
+      <i data-lucide="shield-alert" class="w-4 h-4"></i>
+    </div>
+    <h3 class="text-base font-bold text-gray-800">Contas geridas</h3>
+    <span class="ml-auto text-[10px] uppercase tracking-[2px] font-black text-gray-400">{{ pessoas|length }} pessoas</span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr class="text-[10px] uppercase tracking-[2px] font-black text-gray-500">
+          <th class="px-6 py-3">Pessoa</th>
+          <th class="px-6 py-3">Vínculo</th>
+          {% for chave, info in dados.SISTEMAS.items() %}
+            <th class="px-6 py-3">{{ info.rotulo }}</th>
+          {% endfor %}
+          <th class="px-6 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for pessoa in pessoas %}
+          <tr class="hover:bg-gray-50/70 transition-colors">
+            <td class="px-6 py-3.5">
+              <div class="text-[13px] font-semibold text-gray-800">{{ pessoa.nome }}</div>
+              <div class="text-xs text-gray-400">{{ pessoa.unidade }}</div>
+            </td>
+            <td class="px-6 py-3.5">
+              <span class="text-[11px] font-medium rounded px-2 py-0.5 {% if pessoa.tipo == 'aluno' %}bg-brand-navy/5 text-brand-navy{% else %}bg-gray-100 text-gray-600{% endif %}">
+                {{ pessoa.tipo }}
+              </span>
+            </td>
+            {% for chave in dados.SISTEMAS %}
+              {% set estado = pessoa.estado.get(chave, 'sem_conta') %}
+              <td class="px-6 py-3.5">
+                <span class="inline-block text-[11px] font-medium rounded-full px-2.5 py-0.5 ring-1 {{ dados.ESTADOS[estado].classe }}">
+                  {{ dados.ESTADOS[estado].rotulo }}
+                </span>
+              </td>
+            {% endfor %}
+            <td class="px-6 py-3.5 text-right">
+              <a href="{{ url_for('acesso_pessoa', login=pessoa.login) }}"
+                 class="inline-flex items-center gap-1.5 text-[13px] text-brand-gold hover:opacity-80 font-semibold">
+                Gerenciar <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-100 p-5 max-w-3xl relative overflow-hidden">
+  <div class="hidden md:block absolute top-0 right-0 w-24 h-24 rounded-bl-full -mr-4 -mt-4 opacity-10 bg-brand-gold"></div>
+  <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">Sugestão de percurso</div>
+  <p class="text-[13px] text-gray-600 leading-relaxed">
+    Abra <strong class="font-semibold text-gray-800">Tiago Vasconcelos</strong>, do Laboratório de Redes,
+    e tente bloquear o acesso dele. A tela não vai impedir: quem impede é o servidor. Depois troque o
+    perfil para <strong class="font-semibold text-gray-800">Auditoria e Segurança</strong> e veja o que
+    ficou registrado.
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block cabecalho %}{{ titulo }}{% endblock %}
+{% block subtitulo %}Resultado sistema por sistema.{% endblock %}
+
+{% block conteudo %}
+{% if execucao.recusada %}
+  <div class="max-w-3xl">
+    <div class="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden relative">
+      <div class="hidden md:block absolute top-0 right-0 w-28 h-28 rounded-bl-full -mr-5 -mt-5 opacity-10 bg-red-600"></div>
+
+      <div class="px-6 md:px-8 py-5 flex items-start gap-4 border-b border-red-100 bg-red-50/60">
+        <div class="p-2.5 rounded-lg bg-red-600 text-white shrink-0">
+          <i data-lucide="shield-x" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-red-900">Operação recusada. Nada foi escrito.</h3>
+          <p class="text-[13px] text-red-800 mt-0.5">
+            {{ dados.SISTEMAS[execucao.sistema_da_recusa].rotulo }} não confirmou contra qual base escreveria.
+          </p>
+        </div>
+      </div>
+
+      <div class="px-6 md:px-8 py-6 space-y-5">
+        <div>
+          <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-1.5">Motivo</div>
+          <p class="text-sm text-gray-700">{{ execucao.motivo_recusa }}</p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-100 rounded-lg p-5">
+          <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">Por que recusar em vez de seguir</div>
+          <p class="text-[13px] text-gray-600 leading-relaxed">
+            A confirmação acontece nos três sistemas <em>antes</em> de qualquer escrita. Como um deles
+            não respondeu o esperado, nenhum foi tocado: a alternativa seria criar a pessoa em dois
+            sistemas e deixá-la ausente no terceiro, ou pior, escrever no ambiente errado. Meio
+            provisionamento é mais caro de descobrir e de desfazer do que uma recusa explícita.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3 pt-1">
+          <a href="{{ voltar or url_for('dashboard') }}" class="text-sm font-semibold bg-brand-navy hover:opacity-90 text-white rounded-lg px-5 py-2.5">Voltar</a>
+          <a href="{{ url_for('auditoria') }}" class="text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5 flex items-center gap-2">
+            <i data-lucide="clipboard-check" class="w-4 h-4"></i> Ver o registro desta recusa
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% else %}
+  <div class="max-w-3xl space-y-5">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative">
+      <div class="hidden md:block absolute top-0 right-0 w-28 h-28 rounded-bl-full -mr-5 -mt-5 opacity-10 bg-brand-gold"></div>
+
+      <div class="px-6 md:px-8 py-5 border-b border-gray-100 flex items-center justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">{{ execucao.pessoa.nome }}</h3>
+          <p class="text-[13px] text-gray-500">{{ execucao.pessoa.unidade }}</p>
+        </div>
+        <span class="inline-flex items-center gap-2 text-[13px] font-semibold text-emerald-700 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-full px-3.5 py-1.5 shrink-0">
+          <i data-lucide="check-circle-2" class="w-4 h-4"></i> Concluído
+        </span>
+      </div>
+
+      <div class="divide-y divide-gray-100">
+        {% for resultado in execucao.resultados %}
+          <div class="px-6 md:px-8 py-4 flex items-start gap-4">
+            <div class="w-40 shrink-0">
+              <div class="text-sm font-semibold text-gray-800">{{ dados.SISTEMAS[resultado.sistema].rotulo }}</div>
+              <div class="text-[11px] text-gray-400 uppercase tracking-wider">{{ dados.SISTEMAS[resultado.sistema].detalhe }}</div>
+            </div>
+            <div class="flex-1">
+              <div class="text-[13px] text-gray-700">{{ resultado.mensagem }}</div>
+              {% if resultado.detalhes.login %}
+                <div class="text-xs text-gray-500 mt-1.5">
+                  entra como <code class="bg-gray-100 rounded px-2 py-0.5 text-gray-700 font-mono">{{ resultado.detalhes.login }}</code>
+                </div>
+              {% endif %}
+            </div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 rounded px-2 py-1 shrink-0">ok</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 flex gap-3">
+      <i data-lucide="info" class="w-4 h-4 text-brand-gold shrink-0 mt-0.5"></i>
+      <p class="text-[13px] text-gray-600 leading-relaxed">
+        Três sistemas, três formatos de login diferentes, uma senha só. É por isso que o e-mail de
+        credenciais precisa dizer com qual nome se entra em cada lugar.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      {% if session.get('ultimo_email') %}
+        <a href="{{ url_for('email_credenciais') }}" class="text-sm font-semibold bg-brand-gold hover:opacity-90 text-white rounded-lg px-5 py-2.5 shadow-sm shadow-brand-gold/20 flex items-center gap-2">
+          <i data-lucide="mail" class="w-4 h-4"></i> Ver o e-mail de credenciais
+        </a>
+      {% endif %}
+      <a href="{{ voltar or url_for('dashboard') }}" class="text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5">Voltar</a>
+      <a href="{{ url_for('auditoria') }}" class="text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg px-5 py-2.5">Ver na auditoria</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

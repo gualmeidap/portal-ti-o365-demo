@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar · Portal TI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { colors: { 'brand-navy': '#001529', 'brand-gold': '#B8860B' } } }
+  }
+</script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+</style>
+</head>
+<body class="bg-brand-navy min-h-screen flex flex-col">
+
+<div class="bg-amber-400 text-amber-950 text-[13px] font-medium px-6 py-1.5 flex items-center justify-center gap-2">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+  Demonstração pública · pessoas, unidades e domínios são fictícios · nenhum sistema real é contatado
+</div>
+
+<div class="flex-1 flex items-center justify-center px-6 py-10">
+  <div class="w-full max-w-2xl">
+
+    <div class="flex flex-col items-center mb-8">
+      <div class="w-24 h-24 rounded-2xl bg-brand-gold flex flex-col items-center justify-center text-white font-bold shadow-lg mb-5">
+        <span class="text-3xl">TI</span>
+        <span class="text-[10px] uppercase tracking-widest mt-1 opacity-80">Portal</span>
+      </div>
+      <h1 class="text-2xl font-bold text-white tracking-tight">Portal TI</h1>
+      <p class="text-sm text-white/50 mt-1">Gestão de identidade em três sistemas</p>
+    </div>
+
+    <form method="post" class="bg-white rounded-2xl shadow-2xl p-6 md:p-8">
+      <input type="hidden" name="proximo" value="{{ proximo }}">
+
+      <div class="mb-6">
+        <h2 class="text-base font-bold text-gray-800">Entrar como</h2>
+        <p class="text-[13px] text-gray-500 mt-1">
+          No portal real, aqui vão usuário e senha. Nesta demonstração você escolhe o perfil
+          técnico — porque é o escopo do perfil que muda o que a próxima tela deixa fazer.
+        </p>
+      </div>
+
+      <div class="space-y-2.5 mb-7">
+        {% for chave, info in perfis.items() %}
+          <label class="flex items-start gap-3.5 p-4 rounded-xl border-2 cursor-pointer transition
+                        border-gray-100 hover:border-brand-gold/40 hover:bg-gray-50/60
+                        has-[:checked]:border-brand-gold has-[:checked]:bg-brand-gold/5">
+            <input type="radio" name="perfil" value="{{ chave }}"
+                   {% if loop.first %}checked{% endif %}
+                   class="mt-1 text-brand-gold focus:ring-brand-gold border-gray-300">
+            <span class="flex-1">
+              <span class="block text-sm font-bold text-gray-800">{{ info.rotulo }}</span>
+              <span class="block text-[13px] text-gray-500 mt-0.5">{{ info.descricao }}</span>
+              <span class="flex flex-wrap items-center gap-1.5 mt-2">
+                {% if info.sistemas %}
+                  {% for sistema in dados.SISTEMAS %}
+                    {% if sistema in info.sistemas %}
+                      <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-600 bg-gray-100 rounded px-2 py-0.5">
+                        {{ dados.SISTEMAS[sistema].rotulo }}
+                      </span>
+                    {% endif %}
+                  {% endfor %}
+                {% else %}
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-gray-500 bg-gray-100 rounded px-2 py-0.5">
+                    não opera nenhum sistema
+                  </span>
+                {% endif %}
+                {% if info.ve_auditoria_seguranca %}
+                  <span class="text-[10px] font-semibold uppercase tracking-wider text-white bg-brand-navy rounded px-2 py-0.5">
+                    vê registros de segurança
+                  </span>
+                {% endif %}
+              </span>
+            </span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <button class="w-full bg-brand-gold hover:opacity-90 text-white text-sm font-bold uppercase tracking-widest rounded-xl px-5 py-3.5 shadow-sm shadow-brand-gold/20 flex items-center justify-center gap-2">
+        <i data-lucide="log-in" class="w-4 h-4"></i> Entrar no sistema
+      </button>
+
+      <p class="text-xs text-gray-400 text-center mt-5 leading-relaxed">
+        Você pode trocar de perfil a qualquer momento pela barra lateral, sem sair.
+        O escopo é verificado no servidor a cada requisição, não no menu.
+      </p>
+    </form>
+
+    <p class="text-center text-[11px] text-white/30 uppercase tracking-widest font-medium mt-7">
+      Portal TI · Demonstração pública
+    </p>
+  </div>
+</div>
+
+<script>lucide.createIcons();</script>
+</body>
+</html>

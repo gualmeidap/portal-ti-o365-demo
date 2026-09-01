@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block titulo %}Logs e auditoria{% endblock %}
+{% block cabecalho %}Logs e Auditoria{% endblock %}
+{% block subtitulo %}Uma linha por ação, com o resultado de cada sistema.{% endblock %}
+
+{% block conteudo %}
+{% if not ve_seguranca %}
+  <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4 flex items-start gap-3 max-w-4xl">
+    <i data-lucide="lock" class="w-4 h-4 text-gray-400 shrink-0 mt-0.5"></i>
+    <p class="text-[13px] text-gray-600 leading-relaxed">
+      Este perfil vê o registro operacional. Os registros de segurança são filtrados na
+      consulta ao banco, não na tela: quem pode ser objeto de uma apuração não recebe as
+      linhas dela nem pelo código-fonte da página.
+      <span class="text-gray-400">Troque o perfil para Auditoria e Segurança para ver a tabela completa.</span>
+    </p>
+  </div>
+{% endif %}
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+    <div class="p-2 rounded-lg bg-brand-gold/10 text-brand-gold">
+      <i data-lucide="clipboard-check" class="w-4 h-4"></i>
+    </div>
+    <h3 class="text-base font-bold text-gray-800">Histórico de execuções</h3>
+    <span class="ml-auto text-[10px] uppercase tracking-[2px] font-black text-gray-400">{{ eventos|length }} registros</span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr class="text-[10px] uppercase tracking-[2px] font-black text-gray-500">
+          <th class="px-5 py-3">Quando</th>
+          <th class="px-5 py-3">Quem</th>
+          <th class="px-5 py-3">Ação</th>
+          <th class="px-5 py-3">Alvo</th>
+          {% for chave, info in dados.SISTEMAS.items() %}
+            <th class="px-3 py-3 text-center">{{ info.rotulo.split()[0] }}</th>
+          {% endfor %}
+          <th class="px-5 py-3">Resultado</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for evento in eventos %}
+          <tr class="{% if evento.categoria == 'seguranca' %}bg-red-50/40{% else %}hover:bg-gray-50/70{% endif %} transition-colors">
+            <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">{{ evento.quando }}</td>
+            <td class="px-5 py-3.5 text-[13px] text-gray-700">{{ evento.ator_rotulo }}</td>
+            <td class="px-5 py-3.5">
+              <div class="text-[13px] font-medium text-gray-800">{{ evento.operacao }}</div>
+              {% if evento.detalhe %}<div class="text-xs text-gray-500 mt-0.5">{{ evento.detalhe }}</div>{% endif %}
+            </td>
+            <td class="px-5 py-3.5 text-[13px] text-gray-700">{{ evento.alvo }}</td>
+            {% for chave in dados.SISTEMAS %}
+              <td class="px-3 py-3.5 text-center">
+                {% set valor = evento[chave] %}
+                {% if valor %}
+                  <span class="text-[11px] font-semibold rounded px-2 py-0.5 whitespace-nowrap
+                    {% if valor == 'ok' %}bg-emerald-50 text-emerald-700
+                    {% elif valor in ('negado', 'recusado', 'falhou') %}bg-red-50 text-red-700
+                    {% else %}bg-gray-100 text-gray-600{% endif %}">{{ valor }}</span>
+                {% else %}
+                  <span class="text-gray-300">—</span>
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td class="px-5 py-3.5 whitespace-nowrap">
+              <span class="text-[11px] font-semibold rounded px-2 py-0.5
+                {% if evento.resultado == 'ok' %}bg-emerald-50 text-emerald-700
+                {% elif evento.resultado == 'parcial' %}bg-amber-50 text-amber-700
+                {% else %}bg-red-100 text-red-800{% endif %}">{{ evento.resultado }}</span>
+              {% if evento.categoria == 'seguranca' %}
+                <span class="ml-1 text-[11px] font-semibold rounded px-2 py-0.5 bg-brand-navy text-white">segurança</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<p class="text-xs text-gray-500 mt-4 max-w-4xl leading-relaxed">
+  A auditoria é o produto, não um subproduto. Cada linha responde de uma vez quem pediu,
+  o que pediu, contra quem, e como cada sistema respondeu — inclusive quando a resposta foi recusa.
+</p>
+{% endblock %}

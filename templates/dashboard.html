@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block titulo %}Início{% endblock %}
+{% block cabecalho %}Bem-vindo ao Portal de Automação{% endblock %}
+{% block subtitulo %}Selecione um módulo abaixo para gerenciar identidades nos três sistemas.{% endblock %}
+
+{% block conteudo %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-10">
+  {% set cartoes = [
+    ('criar_colaborador', 'Novo Usuário - Colaborador', 'Conta nos três sistemas, uma senha só, e-mail de credenciais pronto.', 'user-plus', 'brand-gold'),
+    ('criar_aluno', 'Novo Usuário - Aluno', 'Mesmo caminho, com o conjunto de sistemas que o vínculo pede.', 'user-plus', 'brand-gold'),
+    ('redefinir_senha', 'Alterar Senha', 'Uma senha nova, aplicada em todos os sistemas onde a pessoa existe.', 'key-round', 'brand-gold'),
+    ('acesso', 'Gestão de Acesso', 'Bloquear e reativar, por sistema ou em todos de uma vez.', 'shield-alert', 'red-600'),
+    ('auditoria', 'Logs de Auditoria', 'Histórico e rastreabilidade de ações executadas.', 'clipboard-check', 'brand-navy')
+  ] %}
+
+  {% for endpoint, rotulo, texto, icone, cor in cartoes %}
+    {# A auditoria é leitura: todo perfil alcança, cada um vendo o que lhe cabe. #}
+    {% set liberado = endpoint == 'auditoria' or endpoint in perfil_info.operacoes %}
+    
+    <a href="{{ url_for(endpoint) if liberado else '#' }}"
+       {% if not liberado %}onclick="return false;"{% endif %}
+       class="group bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300 text-left relative overflow-hidden 
+              {% if liberado %}hover:shadow-lg hover:border-{{ cor }}/30{% else %}opacity-60 cursor-not-allowed{% endif %} 
+              flex flex-row items-center p-4 gap-4 h-auto md:flex-col md:items-start md:p-6 md:h-48 md:gap-0">
+        
+        <div class="hidden md:block absolute top-0 right-0 w-24 h-24 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-150 duration-500 opacity-10 bg-{{ cor }}">
+        </div>
+
+        <div class="shrink-0 p-3 rounded-lg bg-gray-50 md:bg-transparent md:p-0 md:rounded-none transition-colors md:mb-4 text-gray-600 {% if liberado %}group-hover:text-{{ cor }}{% endif %}">
+            <i data-lucide="{{ icone }}" class="w-6 h-6 md:w-8 md:h-8"></i>
+        </div>
+
+        <div class="flex-1">
+            <h3 class="text-base md:text-xl font-bold text-gray-800 mb-1 md:mb-2 {% if liberado %}group-hover:translate-x-1{% endif %} transition-transform flex items-center gap-2">
+                {{ rotulo }}
+                {% if not liberado %}
+                  <i data-lucide="lock" class="w-4 h-4 text-gray-400"></i>
+                {% endif %}
+            </h3>
+            <p class="text-xs md:text-sm text-gray-400 leading-tight md:leading-relaxed">
+                {{ texto }}
+            </p>
+        </div>
+
+        <div class="md:hidden text-gray-300">
+            {% if liberado %}
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            {% else %}
+                <i data-lucide="lock" class="w-4 h-4"></i>
+            {% endif %}
+        </div>
+
+        {% if liberado %}
+            <div class="hidden md:flex mt-auto items-center gap-2 text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0 text-{{ cor }}">
+                Acessar Módulo <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </div>
+        {% else %}
+            <div class="hidden md:flex mt-auto items-center gap-2 text-[11px] text-gray-400">
+                Fora do escopo de {{ perfil_info.rotulo }}
+            </div>
+        {% endif %}
+    </a>
+  {% endfor %}
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+  <!-- Status dos Sistemas -->
+  <div class="col-span-2">
+    <h2 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider text-[11px]">Sistemas Integrados</h2>
+    <div class="grid grid-cols-2 gap-4">
+      {% for chave, info in dados.SISTEMAS.items() %}
+        {% set no_escopo = chave in perfil_info.sistemas %}
+        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm relative overflow-hidden">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="font-medium text-gray-900 text-sm">{{ info.rotulo }}</div>
+              <div class="text-[11px] text-gray-400 uppercase tracking-wide mt-0.5">{{ info.detalhe }}</div>
+            </div>
+            {% if no_escopo %}
+              <span class="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 ring-1 ring-emerald-600/20 rounded-full px-2 py-0.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Ativo
+              </span>
+            {% else %}
+              <span class="text-[11px] font-medium text-gray-500 bg-gray-100 ring-1 ring-gray-500/20 rounded-full px-2 py-0.5">Sem escopo</span>
+            {% endif %}
+          </div>
+          <div class="mt-4 flex items-baseline gap-1.5">
+            <span class="text-2xl font-semibold text-brand-navy">{{ contas[chave] }}</span>
+            <span class="text-[13px] text-gray-500">contas geridas</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Últimas ações -->
+  <div>
+    <h2 class="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider text-[11px]">Log Recente</h2>
+    <div class="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100 shadow-sm">
+      {% for evento in eventos %}
+        <div class="px-4 py-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[13px] font-medium text-gray-800">{{ evento.operacao }}</span>
+            <span class="text-[11px] px-1.5 py-0.5 rounded font-medium
+              {% if evento.resultado == 'ok' %}bg-emerald-50 text-emerald-700
+              {% elif evento.resultado == 'parcial' %}bg-amber-50 text-amber-700
+              {% else %}bg-red-50 text-red-700{% endif %}">{{ evento.resultado }}</span>
+          </div>
+          <div class="text-[12px] text-gray-500 mt-0.5">{{ evento.alvo }} · {{ evento.quando }}</div>
+        </div>
+      {% endfor %}
+      {% if not eventos %}
+        <div class="px-4 py-5 text-center text-sm text-gray-400">
+            Nenhuma ação registrada
+        </div>
+      {% endif %}
+    </div>
+    <a href="{{ url_for('auditoria') }}" class="block text-center text-[13px] text-brand-gold hover:opacity-80 font-medium mt-3">Histórico completo →</a>
+  </div>
+</div>
+{% endblock %}

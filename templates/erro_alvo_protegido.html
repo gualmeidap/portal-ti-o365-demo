@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block titulo %}Acesso encerrado{% endblock %}
+{% block cabecalho %}Operação recusada{% endblock %}
+{% block subtitulo %}Proteção de alvo.{% endblock %}
+{% block identidade_rotulo %}Sessão{% endblock %}
+{% block identidade %}
+  <span class="text-red-600">Encerrada</span>
+{% endblock %}
+
+{% block conteudo %}
+<div class="max-w-2xl">
+  <div class="bg-white rounded-xl shadow-sm border border-red-300 overflow-hidden relative">
+    <div class="hidden md:block absolute top-0 right-0 w-28 h-28 rounded-bl-full -mr-5 -mt-5 opacity-10 bg-red-600"></div>
+
+    <div class="bg-red-600 px-6 md:px-8 py-5 flex items-start gap-4">
+      <div class="p-2.5 rounded-lg bg-white/15 text-white shrink-0">
+        <i data-lucide="shield-x" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-white">Alvo protegido. Nada foi alterado.</h3>
+        <p class="text-[13px] text-red-100 mt-0.5">{{ erro.motivo }}.</p>
+      </div>
+    </div>
+
+    <div class="px-6 md:px-8 py-6 space-y-5">
+      <div class="bg-red-50 border border-red-200 rounded-lg px-5 py-4 flex gap-3">
+        <i data-lucide="log-out" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
+        <div>
+          <div class="text-[13px] font-bold text-red-900">Seu acesso ao portal foi encerrado.</div>
+          <p class="text-[13px] text-red-800 mt-1 leading-relaxed">
+            A sessão caiu na mesma requisição, antes da resposta chegar até aqui. Não há
+            confirmação a dar, nem segunda tentativa a fazer nesta sessão.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">A regra</div>
+        <p class="text-[13px] text-gray-600 leading-relaxed">
+          Nenhum técnico revoga o acesso de outro técnico, nem o da equipe que mantém este
+          portal. Vale para todos os perfis, inclusive os que bloqueiam qualquer outra
+          pessoa da instituição. Um portal que corta acesso nos três sistemas de uma vez é
+          uma boa ferramenta para quem administra e uma boa arma para quem foi comprometido:
+          a proteção existe para que ele não sirva à segunda coisa.
+        </p>
+      </div>
+
+      <div>
+        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">O que ficou registrado</div>
+        <p class="text-[13px] text-gray-600 leading-relaxed">
+          Quem pediu, contra quem, quando, e que a sessão foi encerrada. O registro é de
+          segurança: aparece para a auditoria e não para quem opera — nem para quem acabou
+          de tentar.
+        </p>
+      </div>
+
+      <div class="pt-1">
+        <a href="{{ url_for('login') }}" class="inline-block text-sm font-semibold bg-brand-navy hover:opacity-90 text-white rounded-lg px-5 py-2.5">Entrar de novo</a>
+      </div>
+      <p class="text-xs text-gray-400">
+        A sessão acabou de verdade: qualquer outra tela devolve você à entrada. Na
+        demonstração, basta entrar de novo para continuar navegando.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
