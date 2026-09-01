@@ -11,6 +11,13 @@ que aparece. Para regenerar tudo:
 
 Usa o Chrome já instalado na máquina (`channel="chrome"`), sem baixar navegador.
 A aplicação precisa estar rodando em http://127.0.0.1:5057.
+
+Além dos PNGs, produz dois GIFs:
+
+  fluxo-criacao.gif   o caminho feliz, para o README do projeto
+  portal-ti.gif       o caminho feliz E a recusa, para vitrine curta (perfil,
+                      post, qualquer lugar onde só há uma imagem para contar
+                      a história inteira)
 """
 
 import os
@@ -24,18 +31,26 @@ CAPTURAS = os.path.join(RAIZ, "docs", "capturas")
 VIEWPORT = {"width": 1360, "height": 860}
 
 os.makedirs(CAPTURAS, exist_ok=True)
-quadros_gif = []
+
+# Quadros de GIF, separados por destino. Uma mesma tela pode alimentar os dois.
+quadros = {"fluxo": [], "perfil": []}
 
 
-def foto(pagina, nome, gif=False):
-    caminho = os.path.join(CAPTURAS, nome + ".png")
-    pagina.screenshot(path=caminho, full_page=True)
-    if gif:
-        quadro = os.path.join(CAPTURAS, "_gif_" + nome + ".png")
+def foto(pagina, nome, gifs=(), guardar=True):
+    """
+    Fotografa a tela atual.
+
+    `guardar=False` produz só quadro de GIF, para telas que não precisam virar
+    PNG solto no repositório.
+    """
+    if guardar:
+        pagina.screenshot(path=os.path.join(CAPTURAS, nome + ".png"), full_page=True)
+        print("  ->", nome + ".png")
+    if gifs:
+        quadro = os.path.join(CAPTURAS, "_quadro_" + nome + ".png")
         pagina.screenshot(path=quadro, full_page=False)
-        quadros_gif.append(quadro)
-    print("  ->", nome + ".png")
-    return caminho
+        for destino in gifs:
+            quadros[destino].append(quadro)
 
 
 def entrar(pagina, perfil="identidade"):
@@ -46,17 +61,38 @@ def entrar(pagina, perfil="identidade"):
     pagina.wait_for_load_state("networkidle")
 
 
-def montar_gif(destino, duracao=2600):
-    if not quadros_gif:
+def montar_gif(nome_arquivo, destino, duracoes, largura=None):
+    """
+    Junta os quadros em um GIF.
+
+    `duracoes` é um tempo por quadro: a tela que carrega a informação mais
+    densa — a recusa — precisa de mais tempo que o formulário.
+    """
+    caminhos = quadros[destino]
+    if not caminhos:
         return
-    imagens = [Image.open(q).convert("P", palette=Image.ADAPTIVE, colors=128) for q in quadros_gif]
+    imagens = []
+    for caminho in caminhos:
+        imagem = Image.open(caminho)
+        if largura and imagem.width > largura:
+            altura = round(imagem.height * largura / imagem.width)
+            imagem = imagem.resize((largura, altura), Image.LANCZOS)
+        imagens.append(imagem.convert("P", palette=Image.ADAPTIVE, colors=128))
+
+    saida = os.path.join(CAPTURAS, nome_arquivo)
     imagens[0].save(
-        destino, save_all=True, append_images=imagens[1:],
-        duration=duracao, loop=0, optimize=True,
+        saida, save_all=True, append_images=imagens[1:],
+        duration=duracoes, loop=0, optimize=True,
     )
-    for quadro in quadros_gif:
-        os.remove(quadro)
-    print("  ->", os.path.basename(destino))
+    print("  -> {} ({} quadros, {:.0f} KB)".format(
+        nome_arquivo, len(imagens), os.path.getsize(saida) / 1024))
+
+
+def limpar_quadros():
+    for caminhos in quadros.values():
+        for caminho in caminhos:
+            if os.path.exists(caminho):
+                os.remove(caminho)
 
 
 def main():
@@ -82,15 +118,15 @@ def main():
 
         pagina.goto(BASE + "/criar-usuario")
         pagina.wait_for_load_state("networkidle")
-        foto(pagina, "02-criar-colaborador", gif=True)
+        foto(pagina, "02-criar-colaborador", gifs=("fluxo", "perfil"))
 
         pagina.click("button:has-text('Provisionar em')")
         pagina.wait_for_load_state("networkidle")
-        foto(pagina, "03-resultado-criacao", gif=True)
+        foto(pagina, "03-resultado-criacao", gifs=("fluxo", "perfil"))
 
         pagina.click("a:has-text('Ver o e-mail de credenciais')")
         pagina.wait_for_load_state("networkidle")
-        foto(pagina, "04-email-credenciais", gif=True)
+        foto(pagina, "04-email-credenciais", gifs=("fluxo",))
 
         print("Gestão de acesso")
         pagina.goto(BASE + "/gestao-acesso")
@@ -107,9 +143,14 @@ def main():
 
         print("Travas")
         pagina.goto(BASE + "/gestao-acesso/tiago.vasconcelos")
+        pagina.wait_for_load_state("networkidle")
+        # Só quadro de GIF: mostra contra quem a tentativa vai, sem virar mais
+        # um PNG quase igual ao painel da Joana.
+        foto(pagina, "alvo-antes-da-tentativa", gifs=("perfil",), guardar=False)
+
         pagina.click("button:has-text('Bloquear em todos')")
         pagina.wait_for_load_state("networkidle")
-        foto(pagina, "08-alvo-protegido")
+        foto(pagina, "08-alvo-protegido", gifs=("perfil",))
 
         # A tentativa contra alvo protegido derrubou a sessão de verdade.
         entrar(pagina)
@@ -140,7 +181,15 @@ def main():
         pagina.wait_for_load_state("networkidle")
         foto(pagina, "13-auditoria-seguranca")
 
-        montar_gif(os.path.join(CAPTURAS, "fluxo-criacao.gif"))
+        print("GIFs")
+        # README do projeto: formulário, resultado, e-mail.
+        montar_gif("fluxo-criacao.gif", "fluxo", duracoes=[2600, 2600, 2600])
+        # Vitrine curta: acrescenta a tentativa e a recusa, que é o desfecho.
+        # Reduzido a 1360px porque é exibido a ~760px e precisa ser leve.
+        montar_gif("portal-ti.gif", "perfil",
+                   duracoes=[2200, 2800, 2200, 3600], largura=1360)
+
+        limpar_quadros()
         navegador.close()
 
 
