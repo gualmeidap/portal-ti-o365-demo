@@ -1,3 +1,5 @@
+> **English summary:** public demo of an identity-provisioning portal I built (Python/Flask). One action creates, resets or blocks an account across Microsoft 365, a local Active Directory and an ERP. The interesting part is the safety design: fail-closed behaviour, protected targets and scope checks enforced on the server. The production version is private; integrations here are in-memory simulations. Live demo: https://portal-ti-o365-demo.onrender.com/
+
 # Portal TI — demonstração pública
 
 Portal interno de gestão de identidade de uma universidade. O time de TI usa
