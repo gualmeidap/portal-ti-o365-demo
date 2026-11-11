@@ -20,10 +20,19 @@ PERFIS = {
     "identidade": {
         "rotulo": "Analista de Identidade",
         "descricao": "Provisiona e revoga acesso nos três sistemas.",
-        "operacoes": {"criar_colaborador", "criar_aluno", "redefinir_senha", "acesso"},
+        "operacoes": {"criar_colaborador", "criar_aluno", "redefinir_senha", "acesso", "fila"},
         "sistemas": {"m365", "diretorio", "erp"},
         "ve_auditoria_operacional": True,
         "ve_auditoria_seguranca": False,
+    },
+    "rh": {
+        "rotulo": "Recursos Humanos",
+        "descricao": "Desliga pessoas: bloqueia nos três sistemas e recebe o comprovante por e-mail.",
+        "operacoes": {"acesso"},
+        "sistemas": {"m365", "diretorio", "erp"},
+        "ve_auditoria_operacional": True,
+        "ve_auditoria_seguranca": False,
+        "recebe_comprovante": True,
     },
     "email": {
         "rotulo": "Operador de E-mail",
@@ -58,7 +67,11 @@ OPERACOES = {
     "criar_aluno": "Novo Usuário - Aluno",
     "redefinir_senha": "Alterar Senha",
     "acesso": "Gestão de Acesso",
+    "fila": "Fila de Retentativa",
 }
+
+# Caixa que recebe o comprovante de desligamento do RH (fictícia).
+CAIXA_RH = "rh@" + DOMINIO_EMAIL
 
 # Domínios de e-mail por tipo de vínculo. Colaborador e aluno não compartilham
 # espaço de nomes: é o que evita um aluno homônimo colidir com um servidor.
@@ -107,7 +120,8 @@ def registro_de(login):
     return "DEMO-{:04d}".format(soma % 9000 + 1000)
 
 
-def _pessoa(nome, login, tipo, unidade, estado, protegido=False, motivo_protecao=None, registro=None):
+def _pessoa(nome, login, tipo, unidade, estado, protegido=False, motivo_protecao=None, registro=None,
+            erp_candidatos=None):
     return {
         "nome": nome,
         "login": login,
@@ -117,6 +131,10 @@ def _pessoa(nome, login, tipo, unidade, estado, protegido=False, motivo_protecao
         "estado": estado,
         "protegido": protegido,
         "motivo_protecao": motivo_protecao,
+        # Quando o nome bate com mais de um cadastro do ERP, o vínculo não é
+        # adivinhado: o técnico escolhe, e o servidor reconfere a escolha.
+        "erp_candidatos": erp_candidatos or [],
+        "erp_vinculo": None,
     }
 
 
@@ -139,10 +157,23 @@ PESSOAS = [
             {"m365": "ativo", "diretorio": "ativo", "erp": "ativo"}),
     _pessoa("Lívia Ferraz", "livia.ferraz", "aluno", "Direito",
             {"m365": "ativo", "diretorio": "sem_conta", "erp": "ativo"}),
+    _pessoa("Paulo Henrique Matos", "paulo.matos", "colaborador", "Secretaria Acadêmica",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "a_vincular"},
+            erp_candidatos=[
+                {"registro": "DEMO-4821", "nome": "PAULO MATOS", "unidade": "Biblioteca Central"},
+                {"registro": "DEMO-7310", "nome": "PAULO HENRIQUE MATOS", "unidade": "Secretaria Acadêmica"},
+            ]),
 ]
 
 ESTADOS = {
     "ativo": {"rotulo": "Ativo", "classe": "bg-emerald-50 text-emerald-700 ring-emerald-600/20"},
     "bloqueado": {"rotulo": "Bloqueado", "classe": "bg-red-50 text-red-700 ring-red-600/20"},
     "sem_conta": {"rotulo": "Sem conta", "classe": "bg-gray-100 text-gray-600 ring-gray-500/20"},
+    "a_vincular": {"rotulo": "Escolher cadastro", "classe": "bg-sky-50 text-sky-700 ring-sky-600/20"},
 }
+
+
+def desligamento_incompleto(estado):
+    """Bloqueada em algum sistema e ainda ativa em outro: o corte não pegou em todos."""
+    valores = set(estado.values())
+    return "bloqueado" in valores and "ativo" in valores

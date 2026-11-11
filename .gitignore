@@ -5,3 +5,6 @@ instance/
 scratch_*
 *.scrape.html
 tools/vitrine/pagina.html
+
+_site/
+.pytest_cache/

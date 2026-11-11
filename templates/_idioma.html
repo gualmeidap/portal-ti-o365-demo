@@ -1,0 +1,6 @@
+<span class="ml-3 inline-flex rounded-md overflow-hidden border border-amber-950/30 text-[11px] font-bold shrink-0" role="group" aria-label="Language">
+  <a href="{{ url_for('idioma', codigo='pt', voltar=request.full_path.rstrip('?')) }}"
+     class="px-2 py-0.5 {% if idioma == 'pt' %}bg-amber-950 text-amber-300{% else %}hover:bg-amber-300{% endif %}">PT</a>
+  <a href="{{ url_for('idioma', codigo='en', voltar=request.full_path.rstrip('?')) }}"
+     class="px-2 py-0.5 {% if idioma == 'en' %}bg-amber-950 text-amber-300{% else %}hover:bg-amber-300{% endif %}">EN</a>
+</span>

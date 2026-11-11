@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal TI · Demo</title>
+<meta name="description" content="Public demo of an identity-provisioning portal (Flask) running entirely in the browser: Microsoft 365, directory and ERP in one action, with fail-closed writes, protected targets and server-side scope. Fictional data.">
+<style>
+  html, body { margin: 0; height: 100%; background: #001529; font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+  #tela { border: 0; width: 100%; height: 100%; display: block; background: #f9fafb; }
+  #boot { position: fixed; inset: 0; display: grid; place-items: center; background: #001529; color: #fff; padding: 16px; }
+  #boot[hidden] { display: none; }
+  .card { max-width: 440px; text-align: center; }
+  .logo { width: 72px; height: 72px; border-radius: 16px; background: #B8860B; display: inline-grid; place-items: center; font-weight: 800; font-size: 24px; }
+  h1 { font-size: 20px; margin: 14px 0 4px; }
+  #passo { color: #cbd5e1; font-size: 14px; min-height: 20px; }
+  .barra { height: 8px; background: rgba(255,255,255,.12); border-radius: 99px; overflow: hidden; margin: 12px 0; }
+  .barra div { height: 100%; width: 0; background: #B8860B; transition: width .4s; }
+  .nota { color: #94a3b8; font-size: 12px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="boot">
+  <div class="card">
+    <div class="logo">TI</div>
+    <h1>Portal TI</h1>
+    <div id="passo"></div>
+    <div class="barra"><div id="progresso"></div></div>
+    <p class="nota" id="nota"></p>
+  </div>
+</div>
+<iframe id="tela" title="Portal TI" hidden></iframe>
+<script src="shell.js"></script>
+</body>
+</html>

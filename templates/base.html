@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="{{ 'en' if idioma == 'en' else 'pt-BR' }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block titulo %}Portal TI{% endblock %} · Demonstração</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+<title>{% block titulo %}Portal TI{% endblock %} · {{ _("Demonstração") }}</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 <script>
   tailwind.config = {
     theme: {
@@ -28,8 +28,9 @@
 <body class="bg-gray-50 text-gray-800 antialiased flex flex-col h-screen overflow-hidden">
 
 <div class="bg-amber-400 text-amber-950 text-[13px] font-medium px-6 py-1.5 flex items-center justify-center gap-2 shrink-0 z-30 relative">
-  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
-  Demonstração pública · pessoas, unidades e domínios são fictícios · nenhum sistema real é contatado
+  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+  <span>{{ _("Demonstração pública · pessoas, unidades e domínios são fictícios · nenhum sistema real é contatado") }}</span>
+  {% include "_idioma.html" %}
 </div>
 
 <div class="flex flex-1 overflow-hidden">
@@ -43,7 +44,7 @@
     </div>
 
     <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto scrollbar-hide border-t border-white/5 pt-8">
-      {% macro item(endpoint, rotulo, operacao, icone) %}
+      {% macro item(endpoint, rotulo, operacao, icone, contador=0) %}
         {% set liberado = operacao is none or operacao in perfil_info.operacoes %}
         {% set ativo = request.endpoint == endpoint %}
         <a href="{{ url_for(endpoint) }}"
@@ -51,29 +52,32 @@
                   {% if ativo %}bg-brand-gold text-white shadow-lg shadow-brand-gold/20
                   {% elif liberado %}text-white/60 hover:text-white hover:bg-white/5
                   {% else %}text-white/30 cursor-not-allowed{% endif %}"
-           {% if not liberado %}title="Fora do escopo do perfil" onclick="return false;"{% endif %}>
+           {% if not liberado %}title="{{ _('Fora do escopo do perfil') }}" onclick="return false;"{% endif %}>
           <i data-lucide="{{ icone }}" class="w-5 h-5 {% if ativo %}text-white{% else %}text-brand-gold opacity-70 group-hover:opacity-100{% endif %}"></i>
-          <span class="font-medium text-sm tracking-wide">{{ rotulo }}</span>
+          <span class="font-medium text-sm tracking-wide">{{ _(rotulo) }}</span>
           {% if not liberado %}
             <i data-lucide="lock" class="w-3.5 h-3.5 ml-auto opacity-50"></i>
+          {% elif contador %}
+            <span class="ml-auto text-[10px] font-bold bg-red-500 text-white rounded-full px-1.5 min-w-[18px] text-center">{{ contador }}</span>
           {% endif %}
         </a>
       {% endmacro %}
 
       {{ item('dashboard', 'Dashboard Inicial', none, 'layout-dashboard') }}
-      
+
       <div class="pt-6 pb-2 px-4 flex items-center gap-2">
-          <span class="text-[10px] text-gray-500 uppercase tracking-[2px] font-black">Módulos</span>
+          <span class="text-[10px] text-gray-500 uppercase tracking-[2px] font-black">{{ _("Módulos") }}</span>
           <div class="h-[1px] bg-white/5 flex-1"></div>
       </div>
-      
+
       {{ item('criar_colaborador', 'Novo Usuário - Colaborador', 'criar_colaborador', 'user-plus') }}
       {{ item('criar_aluno', 'Novo Usuário - Aluno', 'criar_aluno', 'user-plus') }}
       {{ item('redefinir_senha', 'Alterar Senha', 'redefinir_senha', 'key-round') }}
       {{ item('acesso', 'Gestão de Acesso', 'acesso', 'shield-alert') }}
+      {{ item('fila', 'Fila de Retentativa', none if ve_seguranca else 'fila', 'timer-reset', fila_pendentes) }}
 
       <div class="pt-6 pb-2 px-4 flex items-center gap-2">
-          <span class="text-[10px] text-gray-500 uppercase tracking-[2px] font-black">Registro</span>
+          <span class="text-[10px] text-gray-500 uppercase tracking-[2px] font-black">{{ _("Registro") }}</span>
           <div class="h-[1px] bg-white/5 flex-1"></div>
       </div>
       {{ item('auditoria', 'Logs e Auditoria', none, 'clipboard-check') }}
@@ -82,11 +86,13 @@
     <div class="mt-auto px-4 pt-6 border-t border-white/5 w-full">
       <form method="post" action="{{ url_for('trocar_perfil') }}" class="mb-4">
         <input type="hidden" name="voltar" value="{{ request.path }}">
-        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-1 pb-1.5">Perfil de Teste</label>
+        <label class="block text-[10px] font-semibold uppercase tracking-wider text-gray-500 px-1 pb-1.5">{{ _("Perfil de Teste") }}</label>
         <select name="perfil" onchange="this.form.submit()"
                 class="w-full bg-gray-800/50 border border-white/10 text-white/80 text-sm rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-brand-gold">
           {% for chave, info in perfis.items() %}
-            <option value="{{ chave }}" {% if chave == perfil %}selected{% endif %}>{{ info.rotulo }}</option>
+            <option value="{{ chave }}" {% if chave == perfil %}selected{% endif %} {% if chave in suspensos %}disabled{% endif %}>
+              {{ _(info.rotulo) }}{% if chave in suspensos %} ({{ _("suspenso") }}){% endif %}
+            </option>
           {% endfor %}
         </select>
       </form>
@@ -94,7 +100,7 @@
       <a href="{{ url_for('logout') }}"
          class="nav-link flex items-center justify-center gap-2.5 p-3 rounded-xl text-red-500 hover:text-red-400 hover:bg-red-500/5">
         <i data-lucide="log-out" class="w-4 h-4"></i>
-        <span class="font-bold text-[13px] uppercase tracking-widest">Sair do sistema</span>
+        <span class="font-bold text-[13px] uppercase tracking-widest">{{ _("Sair do sistema") }}</span>
       </a>
     </div>
   </aside>
@@ -107,19 +113,19 @@
       </div>
       <div class="flex flex-row items-center gap-4 md:gap-8">
         <div class="flex flex-col items-end border-r border-gray-200 pr-4 md:pr-8">
-            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">{% block identidade_rotulo %}Técnico Ativo{% endblock %}</span>
+            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">{% block identidade_rotulo %}{{ _("Técnico Ativo") }}{% endblock %}</span>
             <div class="flex items-center gap-2 text-xs font-bold text-gray-700">
                 <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>
                   {% block identidade %}
-                    {{ perfil_info.rotulo }}
+                    {{ _(perfil_info.rotulo) }}
                   {% endblock %}
                 </span>
             </div>
         </div>
 
         <div class="flex flex-col items-end">
-            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">Sessão Atualizada</span>
+            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-bold">{{ _("Sessão Atualizada") }}</span>
             <div class="flex items-center gap-2 text-xs font-bold text-brand-gold">
                 <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                 <span>{{ agora }}</span>
@@ -134,28 +140,25 @@
       </div>
     </div>
 
-    <footer class="border-t border-gray-200 bg-white px-8 py-3 flex flex-wrap items-center gap-x-6 gap-y-2 relative z-10 shrink-0">
-      <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Controles da demo</span>
-      <form method="post" action="{{ url_for('simular') }}" class="flex items-center gap-2">
-        <input type="hidden" name="voltar" value="{{ request.path }}">
-        <input type="hidden" name="chave" value="diretorio_sem_confirmacao">
-        <button class="text-[12px] px-2.5 py-1 rounded-md border transition
-          {% if simulacoes.get('diretorio_sem_confirmacao') %}bg-red-50 border-red-300 text-red-700 font-medium{% else %}border-gray-300 text-gray-600 hover:bg-gray-50{% endif %}">
-          {% if simulacoes.get('diretorio_sem_confirmacao') %}✓ {% endif %}Diretório não confirma a base
-        </button>
-      </form>
-      <form method="post" action="{{ url_for('simular') }}" class="flex items-center gap-2">
-        <input type="hidden" name="voltar" value="{{ request.path }}">
-        <input type="hidden" name="chave" value="erp_sem_confirmacao">
-        <button class="text-[12px] px-2.5 py-1 rounded-md border transition
-          {% if simulacoes.get('erp_sem_confirmacao') %}bg-red-50 border-red-300 text-red-700 font-medium{% else %}border-gray-300 text-gray-600 hover:bg-gray-50{% endif %}">
-          {% if simulacoes.get('erp_sem_confirmacao') %}✓ {% endif %}ERP não confirma a base
-        </button>
-      </form>
+    <footer class="border-t border-gray-200 bg-white px-8 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 relative z-10 shrink-0">
+      <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{{ _("Controles da demo") }}</span>
+      {% for chave, rotulo in [
+          ('diretorio_sem_confirmacao', 'Diretório não confirma a base'),
+          ('erp_sem_confirmacao', 'ERP não confirma a base'),
+          ('email_falhando', 'Envio de e-mail falhando')] %}
+        <form method="post" action="{{ url_for('simular') }}" class="flex items-center gap-2">
+          <input type="hidden" name="voltar" value="{{ request.path }}">
+          <input type="hidden" name="chave" value="{{ chave }}">
+          <button class="text-[12px] px-2.5 py-1 rounded-md border transition
+            {% if simulacoes.get(chave) %}bg-red-50 border-red-300 text-red-700 font-medium{% else %}border-gray-300 text-gray-600 hover:bg-gray-50{% endif %}">
+            {% if simulacoes.get(chave) %}✓ {% endif %}{{ _(rotulo) }}
+          </button>
+        </form>
+      {% endfor %}
       <form method="post" action="{{ url_for('reiniciar') }}">
-        <button class="text-[12px] px-2.5 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">Reiniciar demonstração</button>
+        <button class="text-[12px] px-2.5 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">{{ _("Reiniciar demonstração") }}</button>
       </form>
-      <div class="ml-auto text-[10px] text-gray-400 uppercase tracking-widest font-medium">Portal TI · Demonstração pública</div>
+      <div class="ml-auto text-[10px] text-gray-400 uppercase tracking-widest font-medium">{{ _("Portal TI · Demonstração pública") }}</div>
     </footer>
   </main>
 </div>

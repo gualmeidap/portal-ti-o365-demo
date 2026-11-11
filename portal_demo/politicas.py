@@ -8,6 +8,7 @@ o pedido ter vindo da tela ou de alguém ter digitado a URL na mão.
 """
 
 from .dados import OPERACOES, PERFIS, SISTEMAS
+from .i18n import em_ingles
 
 
 class NegadoPorEscopo(Exception):
@@ -17,15 +18,17 @@ class NegadoPorEscopo(Exception):
         self.perfil = perfil
         self.operacao = operacao
         self.sistema = sistema
+        rotulo = PERFIS[perfil]["rotulo"]
         if sistema:
-            motivo = "O perfil {} não alcança {}.".format(
-                PERFIS[perfil]["rotulo"], SISTEMAS[sistema]["rotulo"]
-            )
+            alvo = SISTEMAS[sistema]["rotulo"]
+            motivo = "O perfil {} não alcança {}.".format(rotulo, alvo)
+            motivo_en = "The {} profile does not reach {}.".format(em_ingles(rotulo), em_ingles(alvo))
         else:
-            motivo = "O perfil {} não executa a operação {}.".format(
-                PERFIS[perfil]["rotulo"], OPERACOES.get(operacao, operacao)
-            )
+            alvo = OPERACOES.get(operacao, operacao)
+            motivo = "O perfil {} não executa a operação {}.".format(rotulo, alvo)
+            motivo_en = "The {} profile cannot run {}.".format(em_ingles(rotulo), em_ingles(alvo))
         self.motivo = motivo
+        self.motivo_en = motivo_en
         super().__init__(motivo)
 
 

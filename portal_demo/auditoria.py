@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS eventos (
     m365          TEXT,
     diretorio     TEXT,
     erp           TEXT,
-    detalhe       TEXT
+    detalhe       TEXT,
+    detalhe_en    TEXT
 );
 """
 
@@ -51,13 +52,15 @@ class Auditoria:
             con.close()
 
     def registrar(self, *, ator_perfil, ator_rotulo, operacao, alvo, resultado,
-                  categoria="operacional", por_sistema=None, detalhe="", quando=None):
+                  categoria="operacional", por_sistema=None, detalhe="", detalhe_en=None, quando=None):
+        """`detalhe_en` só é preciso quando o detalhe é montado em tempo de execução;
+        texto fixo é traduzido pelo dicionário na hora de exibir."""
         por_sistema = por_sistema or {}
         with self._conexao() as con:
             con.execute(
                 "INSERT INTO eventos (quando, ator_perfil, ator_rotulo, operacao, alvo,"
-                " categoria, resultado, m365, diretorio, erp, detalhe)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                " categoria, resultado, m365, diretorio, erp, detalhe, detalhe_en)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     (quando or datetime.now()).strftime("%d/%m/%Y %H:%M"),
                     ator_perfil,
@@ -70,6 +73,7 @@ class Auditoria:
                     por_sistema.get("diretorio"),
                     por_sistema.get("erp"),
                     detalhe,
+                    detalhe_en,
                 ),
             )
 
@@ -90,7 +94,8 @@ class Auditoria:
     def limpar(self):
         """Só a demonstração usa isto, para voltar ao ponto de partida."""
         with self._conexao() as con:
-            con.execute("DELETE FROM eventos")
+            con.execute("DROP TABLE IF EXISTS eventos")
+            con.executescript(ESQUEMA)
 
     def semear(self, entradas):
         """Histórico fictício, para a demonstração não abrir com a tabela vazia."""

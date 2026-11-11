@@ -34,8 +34,18 @@ class ErpProvider(Provider):
             )
         return "base de demonstração"
 
+    def _sem_vinculo(self, pessoa):
+        """Mais de um cadastro com este nome e nenhum escolhido: não se chuta."""
+        return bool(pessoa.get("erp_candidatos")) and not pessoa.get("erp_vinculo")
+
+    def _falha_sem_vinculo(self):
+        return Resultado.falha(
+            self.chave,
+            "Cadastro do ERP não resolvido: há mais de um com este nome. Escolha o cadastro na tela da pessoa.",
+        )
+
     def existe(self, pessoa):
-        return self.estado.get(pessoa["login"], {}).get("erp") not in (None, "sem_conta")
+        return self.estado.get(pessoa["login"], {}).get("erp") not in (None, "sem_conta", "a_vincular")
 
     def criar(self, pessoa, senha):
         self.estado.setdefault(pessoa["login"], {})["erp"] = "ativo"
@@ -46,12 +56,18 @@ class ErpProvider(Provider):
         )
 
     def ativar(self, pessoa):
+        if self._sem_vinculo(pessoa):
+            return self._falha_sem_vinculo()
         self.estado.setdefault(pessoa["login"], {})["erp"] = "ativo"
         return Resultado.sucesso(self.chave, "Usuário reativado.", login=self.login_de(pessoa))
 
     def desativar(self, pessoa):
+        if self._sem_vinculo(pessoa):
+            return self._falha_sem_vinculo()
         self.estado.setdefault(pessoa["login"], {})["erp"] = "bloqueado"
         return Resultado.sucesso(self.chave, "Usuário inativado.", login=self.login_de(pessoa))
 
     def redefinir_senha(self, pessoa, senha):
+        if self._sem_vinculo(pessoa):
+            return self._falha_sem_vinculo()
         return Resultado.sucesso(self.chave, "Senha trocada no ERP.", login=self.login_de(pessoa))

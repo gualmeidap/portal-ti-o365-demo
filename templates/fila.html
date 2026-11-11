@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}{{ _("Fila de retentativa") }}{% endblock %}
+{% block cabecalho %}{{ _("Fila de Retentativa") }}{% endblock %}
+{% block subtitulo %}{{ _("Bloqueios que um sistema não pôde receber na hora.") }}{% endblock %}
+
+{% block conteudo %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-4">
+    {% if resumo %}
+      <div class="bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-3.5 text-[13px] text-gray-700 flex flex-wrap gap-x-5 gap-y-1">
+        <strong>{{ _("Última passada:") }}</strong>
+        <span>{{ resumo.concluido }} {{ _("concluído(s)") }}</span>
+        <span>{{ resumo.pendente }} {{ _("ainda pendente(s)") }}</span>
+        <span>{{ resumo.cancelado }} {{ _("cancelado(s)") }}</span>
+        <span>{{ resumo.desistiu }} {{ _("sem mais tentativas") }}</span>
+      </div>
+    {% endif %}
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+        <div class="p-2 rounded-lg bg-sky-50 text-sky-600"><i data-lucide="timer-reset" class="w-4 h-4"></i></div>
+        <h3 class="text-base font-bold text-gray-800">{{ _("Itens") }}</h3>
+        {% if 'fila' in perfil_info.operacoes %}
+          <form method="post" action="{{ url_for('processar_fila') }}" class="ml-auto">
+            <button class="text-[13px] font-semibold bg-brand-navy hover:opacity-90 text-white rounded-lg px-4 py-2 flex items-center gap-2">
+              <i data-lucide="play" class="w-3.5 h-3.5"></i> {{ _("Rodar a retentativa agora") }}
+            </button>
+          </form>
+        {% endif %}
+      </div>
+      {% if itens %}
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b border-gray-100">
+              <tr class="text-[10px] uppercase tracking-[2px] font-black text-gray-500">
+                <th class="px-5 py-3">{{ _("Quando") }}</th>
+                <th class="px-5 py-3">{{ _("Pessoa") }}</th>
+                <th class="px-5 py-3">{{ _("Sistema") }}</th>
+                <th class="px-5 py-3">{{ _("Tentativas") }}</th>
+                <th class="px-5 py-3">{{ _("Situação") }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              {% for item in itens %}
+                <tr>
+                  <td class="px-5 py-3.5 text-xs text-gray-500 whitespace-nowrap">{{ item.quando }}</td>
+                  <td class="px-5 py-3.5 text-[13px] text-gray-800 font-medium">{{ item.nome }}</td>
+                  <td class="px-5 py-3.5 text-[13px] text-gray-700">{{ _(dados.SISTEMAS[item.sistema].rotulo) }}</td>
+                  <td class="px-5 py-3.5 text-[13px] text-gray-700">{{ item.tentativas }}</td>
+                  <td class="px-5 py-3.5">
+                    <span class="text-[11px] font-semibold rounded px-2 py-0.5
+                      {% if item.estado == 'concluido' %}bg-emerald-50 text-emerald-700
+                      {% elif item.estado == 'pendente' %}bg-sky-50 text-sky-700
+                      {% else %}bg-red-50 text-red-700{% endif %}">{{ _(item.estado) }}</span>
+                    {% if item.ultimo_erro %}<div class="text-xs text-gray-500 mt-1">{{ _(item.ultimo_erro) }}</div>{% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="px-6 py-8 text-center text-sm text-gray-400">
+          {{ _("Fila vazia. Ligue \"ERP não confirma a base\" no rodapé e bloqueie alguém em todos os sistemas.") }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <aside class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-fit">
+    <h3 class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-4">{{ _("Como a fila funciona") }}</h3>
+    <ul class="space-y-3 text-[13px] text-gray-600 leading-relaxed">
+      <li>{{ _("No portal real, um processo agendado roda a cada 5 minutos. Aqui, o botão faz a mesma passada.") }}</li>
+      <li>{{ _h("<strong>Só bloqueio entra.</strong> A fila existe para que um acesso que devia ser cortado não fique aberto. Reativação que falha aparece na tela de quem pediu.") }}</li>
+      <li>{{ _h("<strong>A política é reconferida a cada tentativa.</strong> Alvo que passou a ser protegido é cancelado, e base que não confirma continua sem ser escrita.") }}</li>
+      <li>{{ _("Depois de 5 tentativas o item para e fica visível para alguém olhar.") }}</li>
+    </ul>
+  </aside>
+</div>
+{% endblock %}

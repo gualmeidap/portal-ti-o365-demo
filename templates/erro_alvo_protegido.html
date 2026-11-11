@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block titulo %}Acesso encerrado{% endblock %}
-{% block cabecalho %}Operação recusada{% endblock %}
-{% block subtitulo %}Proteção de alvo.{% endblock %}
-{% block identidade_rotulo %}Sessão{% endblock %}
+{% block titulo %}{{ _("Acesso encerrado") }}{% endblock %}
+{% block cabecalho %}{{ _("Operação recusada") }}{% endblock %}
+{% block subtitulo %}{{ _("Proteção de alvo.") }}{% endblock %}
+{% block identidade_rotulo %}{{ _("Sessão") }}{% endblock %}
 {% block identidade %}
-  <span class="text-red-600">Encerrada</span>
+  <span class="text-red-600">{{ _("Encerrada") }}</span>
 {% endblock %}
 
 {% block conteudo %}
@@ -17,8 +17,8 @@
         <i data-lucide="shield-x" class="w-5 h-5"></i>
       </div>
       <div>
-        <h3 class="text-lg font-bold text-white">Alvo protegido. Nada foi alterado.</h3>
-        <p class="text-[13px] text-red-100 mt-0.5">{{ erro.motivo }}.</p>
+        <h3 class="text-lg font-bold text-white">{{ _("Alvo protegido. Nada foi alterado.") }}</h3>
+        <p class="text-[13px] text-red-100 mt-0.5">{{ _(erro.motivo) }}.</p>
       </div>
     </div>
 
@@ -26,40 +26,32 @@
       <div class="bg-red-50 border border-red-200 rounded-lg px-5 py-4 flex gap-3">
         <i data-lucide="log-out" class="w-4 h-4 text-red-600 shrink-0 mt-0.5"></i>
         <div>
-          <div class="text-[13px] font-bold text-red-900">Seu acesso ao portal foi encerrado.</div>
+          <div class="text-[13px] font-bold text-red-900">{{ _("Seu acesso ao portal foi encerrado e o perfil foi suspenso.") }}</div>
           <p class="text-[13px] text-red-800 mt-1 leading-relaxed">
-            A sessão caiu na mesma requisição, antes da resposta chegar até aqui. Não há
-            confirmação a dar, nem segunda tentativa a fazer nesta sessão.
+            {{ _("A sessão caiu na mesma requisição, antes da resposta chegar até aqui. Entrar de novo com o mesmo perfil não adianta: a suspensão fica até a auditoria liberar.") }}
           </p>
         </div>
       </div>
 
       <div>
-        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">A regra</div>
+        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">{{ _("A regra") }}</div>
         <p class="text-[13px] text-gray-600 leading-relaxed">
-          Nenhum técnico revoga o acesso de outro técnico, nem o da equipe que mantém este
-          portal. Vale para todos os perfis, inclusive os que bloqueiam qualquer outra
-          pessoa da instituição. Um portal que corta acesso nos três sistemas de uma vez é
-          uma boa ferramenta para quem administra e uma boa arma para quem foi comprometido:
-          a proteção existe para que ele não sirva à segunda coisa.
+          {{ _("Nenhum técnico revoga o acesso de outro técnico, nem o da equipe que mantém este portal. Vale para todos os perfis, inclusive os que bloqueiam qualquer outra pessoa da instituição. Um portal que corta acesso nos três sistemas de uma vez é uma boa ferramenta para quem administra e uma boa arma para quem foi comprometido: a proteção existe para que ele não sirva à segunda coisa.") }}
         </p>
       </div>
 
       <div>
-        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">O que ficou registrado</div>
+        <div class="text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">{{ _("O que ficou registrado") }}</div>
         <p class="text-[13px] text-gray-600 leading-relaxed">
-          Quem pediu, contra quem, quando, e que a sessão foi encerrada. O registro é de
-          segurança: aparece para a auditoria e não para quem opera — nem para quem acabou
-          de tentar.
+          {{ _("Quem pediu, contra quem, quando, e que a sessão foi encerrada. O registro é de segurança: aparece para a auditoria e não para quem opera — nem para quem acabou de tentar.") }}
         </p>
       </div>
 
       <div class="pt-1">
-        <a href="{{ url_for('login') }}" class="inline-block text-sm font-semibold bg-brand-navy hover:opacity-90 text-white rounded-lg px-5 py-2.5">Entrar de novo</a>
+        <a href="{{ url_for('login') }}" class="inline-block text-sm font-semibold bg-brand-navy hover:opacity-90 text-white rounded-lg px-5 py-2.5">{{ _("Entrar com outro perfil") }}</a>
       </div>
       <p class="text-xs text-gray-400">
-        A sessão acabou de verdade: qualquer outra tela devolve você à entrada. Na
-        demonstração, basta entrar de novo para continuar navegando.
+        {{ _("Na demonstração, entre como Auditoria e Segurança para ver o registro e liberar a suspensão.") }}
       </p>
     </div>
   </div>
