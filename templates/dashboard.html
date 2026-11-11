@@ -21,13 +21,12 @@
     ('criar_aluno', 'Novo Usuário - Aluno', 'Mesmo caminho, com o conjunto de sistemas que o vínculo pede.', 'user-plus', 'brand-gold'),
     ('redefinir_senha', 'Alterar Senha', 'Uma senha nova, aplicada em todos os sistemas onde a pessoa existe.', 'key-round', 'brand-gold'),
     ('acesso', 'Gestão de Acesso', 'Bloquear e reativar, por sistema ou em todos de uma vez.', 'shield-alert', 'red-600'),
-    ('fila', 'Fila de Retentativa', 'Bloqueios que um sistema não pôde receber na hora, tentados de novo.', 'timer-reset', 'brand-navy'),
     ('auditoria', 'Logs de Auditoria', 'Histórico e rastreabilidade de ações executadas.', 'clipboard-check', 'brand-navy')
   ] %}
 
   {% for endpoint, rotulo, texto, icone, cor in cartoes %}
     {# A auditoria é leitura: todo perfil alcança, cada um vendo o que lhe cabe. #}
-    {% set liberado = endpoint == 'auditoria' or endpoint in perfil_info.operacoes or (endpoint == 'fila' and ve_seguranca) %}
+    {% set liberado = endpoint == 'auditoria' or endpoint in perfil_info.operacoes %}
 
     <a href="{{ url_for(endpoint) if liberado else '#' }}"
        {% if not liberado %}onclick="return false;"{% endif %}

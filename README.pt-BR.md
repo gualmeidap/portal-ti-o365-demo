@@ -259,14 +259,14 @@ que percorre esses mesmos fluxos com o Chrome em modo headless.
 |---|---|
 | **Busca nas três bases** | Em Gestão de Acesso e Alterar Senha, o técnico escolhe a base (Microsoft 365 por e-mail, diretório por login de rede, ERP por registro ou nome), digita ao menos 4 caracteres e recebe os candidatos, em vez de escolher numa lista. Mínimo e base permitida são regra do servidor: o perfil que só alcança o Microsoft 365 não busca no diretório nem no ERP, nem forjando a URL. Quem não tem conta numa base não aparece nela; o painel cruza as outras. |
 | **Bloqueio não espera o sistema mais lento** | Ao bloquear, cada sistema é confirmado por si. Os que confirmam a base são bloqueados na hora; o que não confirmou não é escrito (a falha fechada continua valendo) e vai para a **fila de retentativa**. Criar e redefinir senha continuam tudo ou nada. |
-| **Fila de retentativa** | Só bloqueio entra. A cada passada a política é reconferida (alvo protegido é cancelado) e a base é confirmada de novo antes de escrever. Depois de 5 tentativas o item para e fica visível. |
+| **Fila de retentativa (sem tela)** | Como no portal real, é um processo agendado, sem página própria. Só bloqueio entra; a cada passada a política é reconferida (alvo protegido é cancelado) e a base é confirmada de novo antes de escrever. Na demo, desligar o controle de falha no rodapé equivale a "o sistema voltou e o cron rodou", e o resultado aparece nos Logs. Depois de 5 tentativas o item para. |
 | **Desligamento incompleto** | Pessoa bloqueada em um sistema e ativa em outro aparece destacada no painel e na lista. |
 | **Homônimos no ERP** | Quando mais de um cadastro bate com o nome, o portal não escolhe: o técnico escolhe, e o servidor reconfere a escolha contra os candidatos. |
 | **Perfil Recursos Humanos** | Só Gestão de Acesso, nos três sistemas, e recebe o comprovante do desligamento por e-mail. |
 | **Suspensão até liberar** | Quem tenta bloquear um alvo protegido perde a sessão e o perfil fica suspenso até a Auditoria liberar, com registro de quem liberou. |
 | **E-mail não entregue não é sucesso** | Senha aplicada com o e-mail de credenciais falhando fica como *parcial*: a pessoa não consegue entrar. |
 | **PT / EN** | O português é o texto-fonte; o inglês vem de um dicionário. Trocar o idioma traduz também o histórico já registrado. Um teste percorre todas as telas em inglês e falha se algo ficar sem tradução. |
-| **Testes** | `pytest`: escopo, proteção de alvo, suspensão, falha fechada, fila, homônimos, entrega de e-mail, comprovante e cobertura de tradução. |
+| **Testes** | `pytest`: escopo, proteção de alvo, suspensão, falha fechada, retentativa, homônimos, entrega de e-mail, comprovante e cobertura de tradução. |
 | **Roda no navegador** | O mesmo `app.py` é carregado no [Pyodide](https://pyodide.org) (Python compilado para WebAssembly) e servido pelo GitHub Pages. Sem servidor, sem espera de "acordar". |
 
 ## Rodar e testar

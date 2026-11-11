@@ -87,18 +87,29 @@ def test_bloqueio_nao_espera_sistema_que_nao_confirma_e_enfileira(client):
     assert portal.AUDITORIA.listar(incluir_seguranca=False)[0]["erp"] == "na fila"
 
 
-def test_fila_reconfere_base_e_conclui_quando_volta(client):
+def test_fila_nao_tem_pagina_mas_roda_quando_o_sistema_volta(client):
     entrar(client, "rh")
     client.post("/demo/simular", data={"chave": "erp_sem_confirmacao"})
     client.post("/gestao-acesso/joana.prado/desativar", data={"sistema": "todos"})
-    entrar(client, "identidade")
-    client.post("/fila/processar")                       # ERP ainda não confirma
-    assert portal.FILA.itens[0]["estado"] == "pendente" and portal.FILA.itens[0]["tentativas"] == 1
-    assert estado("joana.prado")["erp"] == "ativo"
-    client.post("/demo/simular", data={"chave": "erp_sem_confirmacao"})  # desliga a simulação
-    client.post("/fila/processar")
-    assert portal.FILA.itens[0]["estado"] == "concluido"
+    assert estado("joana.prado")["erp"] == "ativo" and portal.FILA.pendentes()
+    assert client.get("/fila").status_code == 404           # como no portal real: sem tela
+    client.post("/demo/simular", data={"chave": "erp_sem_confirmacao"})   # o sistema voltou, o cron rodou
+    assert portal.FILA.itens[0]["estado"] == "concluido" and portal.FILA.itens[0]["tentativas"] == 1
     assert estado("joana.prado")["erp"] == "bloqueado"
+    ultimo = portal.AUDITORIA.listar(incluir_seguranca=False)[0]
+    assert ultimo["operacao"] == "Retentativa de bloqueio" and ultimo["resultado"] == "ok"
+
+
+def test_fila_nao_roda_enquanto_a_base_continua_sem_confirmar(client):
+    entrar(client, "rh")
+    client.post("/demo/simular", data={"chave": "erp_sem_confirmacao"})
+    client.post("/demo/simular", data={"chave": "diretorio_sem_confirmacao"})
+    client.post("/gestao-acesso/joana.prado/desativar", data={"sistema": "todos"})
+    client.post("/demo/simular", data={"chave": "diretorio_sem_confirmacao"})  # volta só o diretório
+    itens = {i["sistema"]: i for i in portal.FILA.itens}
+    assert itens["diretorio"]["estado"] == "concluido"
+    assert itens["erp"]["estado"] == "pendente" and itens["erp"]["tentativas"] == 1  # reconferiu e não escreveu
+    assert estado("joana.prado")["erp"] == "ativo"
 
 
 def test_fila_cancela_alvo_protegido():

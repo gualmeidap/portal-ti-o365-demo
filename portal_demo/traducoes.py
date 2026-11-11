@@ -120,8 +120,8 @@ EN = {
         "<strong>Marina Coelho</strong> is blocked in Microsoft 365 only: her offboarding stopped halfway. With the <strong>Human Resources</strong> profile, block her everywhere and check the receipt.",
     "<strong>Paulo Henrique Matos</strong> tem dois cadastros parecidos no ERP. O portal não escolhe por você.":
         "<strong>Paulo Henrique Matos</strong> has two similar records in the ERP. The portal does not pick one for you.",
-    "Ligue <strong>ERP não confirma a base</strong> no rodapé e bloqueie alguém em todos: os outros sistemas são bloqueados na hora, e o ERP vai para a fila de retentativa.":
-        "Turn on <strong>ERP does not confirm its database</strong> in the footer and block someone everywhere: the other systems are blocked at once and the ERP goes to the retry queue.",
+    "Ligue <strong>ERP não confirma a base</strong> no rodapé e bloqueie alguém em todos: os outros sistemas são bloqueados na hora, e o ERP fica na fila de retentativa. Desligue o controle de novo: a retentativa roda e o resultado aparece nos Logs.":
+        "Turn on <strong>ERP does not confirm its database</strong> in the footer and block someone everywhere: the other systems are blocked at once and the ERP stays in the retry queue. Turn the control off again: the retry runs and the result shows in the Logs.",
     "registro": "record",
     "Desligamento incompleto: bloqueada em um sistema e ainda ativa em outro.": "Incomplete offboarding: blocked in one system and still active in another.",
     "Bloqueio aguardando na fila de retentativa:": "Block waiting in the retry queue:",
@@ -363,7 +363,7 @@ EN = {
     "Busca por e-mail ou UPN": "Search by e-mail or UPN",
     "Busca por login de rede": "Search by network login",
     "Busca por registro ou nome": "Search by record or name",
-    "Mínimo 4 caracteres (login, e-mail, nome, registro)...": "At least 4 characters (login, e-mail, name, record)...",
+    "Login, e-mail, nome ou registro (mín. 4)": "Login, e-mail, name or record (min. 4)",
     "Buscar": "Search",
     "Digite pelo menos 4 caracteres: um termo curto devolve gente arbitrária, que não identifica ninguém.": "Type at least 4 characters: a short term returns arbitrary people that identify no one.",
     "Ninguém encontrado em": "Nobody found in",
@@ -386,4 +386,6 @@ EN = {
     "E-mail pessoal (destino)": "Personal e-mail (destination)",
     "Mascarado: é para lá que a senha nova vai, então só se revela o suficiente para conferir.": "Masked: the new password goes there, so only enough is shown to double-check.",
     "Gerar e Enviar Nova Senha": "Generate and Send New Password",
+    "Tentado de novo automaticamente; o resultado aparece nos Logs.": "Retried automatically; the result shows in the Logs.",
+    "O resultado da nova tentativa aparece nos Logs.": "The result of the new attempt shows in the Logs.",
 }

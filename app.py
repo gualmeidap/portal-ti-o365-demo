@@ -152,7 +152,6 @@ def contexto():
         "ve_seguranca": ve_auditoria_seguranca(perfil),
         "simulacoes": SIMULACOES,
         "suspensos": SUSPENSOS,
-        "fila_pendentes": len(FILA.pendentes()),
         "idioma": idioma_atual(),
         "agora": agora.strftime("%m/%d/%Y %I:%M %p") if em_ingles_agora else agora.strftime("%d/%m/%Y às %H:%Mh"),
     }
@@ -467,22 +466,6 @@ def alterar_acesso(login, verbo):
                            voltar=url_for("acesso_pessoa", login=login))
 
 
-@app.route("/fila")
-def fila():
-    perfil = perfil_atual()
-    # Quem opera a fila e quem audita enxergam; os demais recebem o 403 de escopo.
-    if not ve_auditoria_seguranca(perfil):
-        exigir_operacao(perfil, "fila")
-    return render_template("fila.html", itens=FILA.itens, resumo=session.pop("resumo_fila", None))
-
-
-@app.route("/fila/processar", methods=["POST"])
-def processar_fila():
-    exigir_operacao(perfil_atual(), "fila")
-    session["resumo_fila"] = FILA.processar(montar(ESTADO, SIMULACOES), PESSOAS, AUDITORIA)
-    return redirect(url_for("fila"))
-
-
 @app.route("/logs")
 def auditoria():
     # Nem a contagem de registros de segurança sai daqui para um perfil que não
@@ -518,7 +501,13 @@ def email_credenciais():
 def simular():
     chave = request.form.get("chave", "")
     if chave in SIMULACOES_VALIDAS:
-        SIMULACOES[chave] = not SIMULACOES.get(chave)
+        estava_ligada = SIMULACOES.get(chave)
+        SIMULACOES[chave] = not estava_ligada
+        # No portal real a fila de retentativa não tem tela: um cron a cada 5
+        # minutos tenta de novo. Aqui, desligar a falha equivale a "o sistema
+        # voltou e o cron rodou"; o resultado fica nos Logs.
+        if estava_ligada and chave.endswith("_sem_confirmacao") and FILA.pendentes():
+            FILA.processar(montar(ESTADO, SIMULACOES), PESSOAS, AUDITORIA)
     return redirect(request.form.get("voltar") or url_for("dashboard"))
 
 

@@ -21,7 +21,7 @@ The value is in the safeguards, not the screens. Each one exists because of a sp
 Before writing anything, **each integration confirms which database it is about to write to**: Microsoft 365 checks the token is for the expected tenant, the directory reads the root of the open connection, the ERP runs the query that tells staging from production (same schema, same look). If a system cannot confirm, it is not written.
 
 - **Creating and resetting are all-or-nothing.** Every database is confirmed before any is written. Confirming and writing system by system leaves a person created in two systems and missing in the third when the last one fails, and half-done provisioning costs more to find and undo than an explicit refusal.
-- **Blocking does not wait for the slowest system.** Refusing a whole block because one system could not confirm would leave access open in the other two, which is exactly the risk a block exists to close. So each system that confirms is blocked at once; the one that did not is still not written, and goes to a **retry queue** that re-confirms the database before writing.
+- **Blocking does not wait for the slowest system.** Refusing a whole block because one system could not confirm would leave access open in the other two, which is exactly the risk a block exists to close. So each system that confirms is blocked at once; the one that did not is still not written, and goes to a **retry queue** (no screen, like the real portal: a scheduled job) that re-confirms the database before writing.
 
 ![Refused by fail-closed](docs/capturas/09-falha-fechada.png)
 
@@ -39,7 +39,7 @@ Each profile reaches a set of operations and a set of systems. Session and scope
 
 | Profile | Can do |
 |---|---|
-| Identity Analyst | Create, reset, block in all three systems; runs the retry queue |
+| Identity Analyst | Create, reset, block in all three systems; retry job runs in the background |
 | Human Resources | Access Management only, all three systems; gets an **e-mailed receipt** of every offboarding |
 | E-mail Operator | Microsoft 365 only |
 | Service Desk (L1) | Password resets only |
@@ -70,7 +70,7 @@ Whoever has no account in a database does not appear in it, and the person's pan
 
 1. As **Identity Analyst**, search `tiago` and try to block him. Then sign in as **Audit & Security** to see what was recorded and lift the suspension.
 2. Search `marina`: she is blocked in Microsoft 365 only. As **Human Resources**, block her everywhere and check the receipt. Switch the database to **ERP** and search `marta`: she exists only there.
-3. Turn on **ERP does not confirm its database** in the footer and block someone everywhere: the other systems are blocked immediately, the ERP goes to the **Retry Queue**. Turn it off and run the queue.
+3. Turn on **ERP does not confirm its database** in the footer and block someone everywhere: the other systems are blocked immediately, the ERP stays in the retry queue. Turn the control off again ("the system is back, the job ran") and look at the Logs.
 4. Search `paulo` in the ERP: two similar records, and the portal makes you choose.
 5. Switch to **E-mail Operator** and go to a screen outside its scope by URL: add `#/criar-aluno` to the end of the address. The server answers 403 and logs it.
 6. Toggle **PT/EN** at any point: the audit history is translated too.

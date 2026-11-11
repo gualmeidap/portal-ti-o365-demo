@@ -19,7 +19,7 @@
       <span>
         {{ _("Bloqueio aguardando na fila de retentativa:") }}
         {% for item in na_fila %}<strong>{{ _(dados.SISTEMAS[item.sistema].rotulo) }}</strong>{% if not loop.last %}, {% endif %}{% endfor %}.
-        <a class="underline font-semibold" href="{{ url_for('fila') }}">{{ _("Ver a fila") }}</a>
+        {{ _("Tentado de novo automaticamente; o resultado aparece nos Logs.") }}
       </span>
     </div>
   {% endif %}

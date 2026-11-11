@@ -20,7 +20,7 @@ PERFIS = {
     "identidade": {
         "rotulo": "Analista de Identidade",
         "descricao": "Provisiona e revoga acesso nos três sistemas.",
-        "operacoes": {"criar_colaborador", "criar_aluno", "redefinir_senha", "acesso", "fila"},
+        "operacoes": {"criar_colaborador", "criar_aluno", "redefinir_senha", "acesso"},
         "sistemas": {"m365", "diretorio", "erp"},
         "ve_auditoria_operacional": True,
         "ve_auditoria_seguranca": False,
@@ -67,7 +67,6 @@ OPERACOES = {
     "criar_aluno": "Novo Usuário - Aluno",
     "redefinir_senha": "Alterar Senha",
     "acesso": "Gestão de Acesso",
-    "fila": "Fila de Retentativa",
 }
 
 # Caixa que recebe o comprovante de desligamento do RH (fictícia).

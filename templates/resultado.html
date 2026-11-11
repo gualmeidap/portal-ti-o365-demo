@@ -109,7 +109,7 @@
         <i data-lucide="timer-reset" class="w-4 h-4 text-sky-600 shrink-0 mt-0.5"></i>
         <p class="text-[13px] text-gray-600 leading-relaxed">
           {{ _("No bloqueio, esperar o sistema mais lento deixaria o acesso aberto nos outros. Por isso cada sistema é bloqueado assim que confirma a base, e o que não confirmou é tentado de novo pela fila.") }}
-          <a href="{{ url_for('fila') }}" class="font-semibold text-brand-gold">{{ _("Ver a fila") }} →</a>
+          {{ _("O resultado da nova tentativa aparece nos Logs.") }}
         </p>
       </div>
     {% endif %}

@@ -22,7 +22,7 @@ def test_every_screen_in_english_is_fully_translated(client):
         for path in ("/", "/gestao-acesso", "/gestao-acesso?origem=m365&termo=ana", "/gestao-acesso?origem=m365&termo=meridiana",
                      "/gestao-acesso?origem=erp&termo=zzzz", "/alterar-senha", "/alterar-senha?origem=m365&termo=meridiana",
                      "/alterar-senha?login=sofia.menezes", "/gestao-acesso/paulo.matos", "/gestao-acesso/marina.coelho",
-                     "/criar-usuario", "/criar-aluno", "/alterar-senha", "/fila", "/logs"):
+                     "/criar-usuario", "/criar-aluno", "/alterar-senha", "/logs"):
             client.get(path)
     # Flows that produce results, refusals, queue items, receipts and e-mails.
     entrar(client, "identidade")
@@ -38,8 +38,7 @@ def test_every_screen_in_english_is_fully_translated(client):
     client.post("/demo/simular", data={"chave": "email_falhando"})
     client.post("/gestao-acesso/rafael.antunes/desativar", data={"sistema": "todos"})
     entrar(client, "identidade")
-    client.post("/fila/processar")
-    client.get("/fila")
+    client.post("/demo/simular", data={"chave": "erp_sem_confirmacao"})   # a retentativa roda
     client.post("/alterar-senha", data={"login": "joana.prado", "sistemas": ["m365", "diretorio", "erp"]})
     client.get("/criar-aluno")
     entrar(client, "email")
