@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 72' role='img' aria-label='Portal TI'%3E%3Cpath d='M32 3 59 12v22c0 17-11.5 29-27 35C16.5 63 5 51 5 34V12z' fill='%230f2f55' stroke='%23d9b24c' stroke-width='3'/%3E%3Ccircle cx='30' cy='24' r='7.5' fill='%23fff'/%3E%3Cpath d='M17 47c0-8.5 5.8-13.5 13-13.5S43 38.500 43 47z' fill='%23fff'/%3E%3Ccircle cx='43' cy='46' r='9.5' fill='%23d9b24c' stroke='%230f2f55' stroke-width='2'/%3E%3Ccircle cx='40' cy='46' r='2.8' fill='none' stroke='%230f2f55' stroke-width='2.2'/%3E%3Cpath d='M42.800 46H48.500M46.200 46v3.200' stroke='%230f2f55' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <title>{{ _("Entrar") }} · Portal TI</title>
 <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 <script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
@@ -27,10 +28,7 @@
   <div class="w-full max-w-2xl">
 
     <div class="flex flex-col items-center mb-8">
-      <div class="w-24 h-24 rounded-2xl bg-brand-gold flex flex-col items-center justify-center text-white font-bold shadow-lg mb-5">
-        <span class="text-3xl">TI</span>
-        <span class="text-[10px] uppercase tracking-widest mt-1 opacity-80">Portal</span>
-      </div>
+      <div class="mb-5">{% set cls = "w-24 h-auto drop-shadow-lg" %}{% include "_marca.html" %}</div>
       <h1 class="text-2xl font-bold text-white tracking-tight">Portal TI</h1>
       <p class="text-sm text-white/50 mt-1">{{ _("Gestão de identidade em três sistemas") }}</p>
     </div>
