@@ -4,52 +4,86 @@
 {% block subtitulo %}{{ _("Uma senha nova, aplicada onde a pessoa existe.") }}{% endblock %}
 
 {% block conteudo %}
-<form method="post" class="max-w-3xl bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
-  <div class="flex items-center gap-3 pb-5 border-b border-gray-100">
-    <div class="p-2.5 rounded-lg bg-brand-gold/10 text-brand-gold">
-      <i data-lucide="key-round" class="w-5 h-5"></i>
+<div class="flex flex-col items-center py-4">
+  <div class="max-w-xl w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 relative">
+    <div class="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
+      <div class="absolute top-0 right-0 w-20 h-20 bg-brand-gold opacity-5 rounded-bl-full"></div>
     </div>
-    <div>
-      <h3 class="text-base font-bold text-gray-800">{{ _("Redefinição de credencial") }}</h3>
-      <p class="text-xs text-gray-400">{{ _("A mesma senha vale nos sistemas marcados.") }}</p>
+
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-3 bg-slate-50 text-brand-gold rounded-xl"><i data-lucide="key-round" class="w-6 h-6"></i></div>
+      <div>
+        <h3 class="text-xl font-bold text-gray-800">{{ _("Redefinir Acesso") }}</h3>
+        <p class="text-xs text-gray-400">{{ _("Busque a pessoa em qualquer uma das bases. A mesma senha vale nos sistemas marcados.") }}</p>
+      </div>
     </div>
-  </div>
 
-  <div>
-    <label class="block text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-2">{{ _("Pessoa") }}</label>
-    <select name="login" class="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-gold/40 focus:border-brand-gold">
-      {% for pessoa in pessoas %}
-        <option value="{{ pessoa.login }}">{{ pessoa.nome }} — {{ _(pessoa.unidade) }}</option>
-      {% endfor %}
-    </select>
-  </div>
+    {% if not pessoa %}
+      {% include "_busca.html" %}
+    {% else %}
+      <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 flex items-center gap-3 mb-5">
+        <div class="p-2 bg-white text-brand-navy rounded-lg border border-slate-100"><i data-lucide="user" class="w-4 h-4"></i></div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-bold text-gray-800 truncate">{{ pessoa.nome }}</p>
+          <p class="text-xs text-gray-400 truncate">{{ _(pessoa.unidade) }} · {{ pessoa.registro }}</p>
+        </div>
+        <a href="{{ url_for('redefinir_senha') }}" class="text-[12px] font-semibold text-brand-gold hover:opacity-80 shrink-0">{{ _("Nova busca") }}</a>
+      </div>
 
-  <div>
-    <span class="block text-[10px] uppercase tracking-[2px] font-black text-gray-500 mb-3">{{ _("Sistemas de destino") }}</span>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-      {% for chave, info in dados.SISTEMAS.items() %}
-        {% set no_escopo = chave in perfil_info.sistemas %}
-        <label class="flex items-center gap-2.5 p-3.5 rounded-lg border transition
-                      {% if no_escopo %}border-gray-200 hover:border-brand-gold/40 cursor-pointer{% else %}border-gray-100 bg-gray-50{% endif %}">
-          <input type="checkbox" name="sistemas" value="{{ chave }}"
-                 {% if no_escopo %}checked{% else %}disabled{% endif %}
-                 class="rounded border-gray-300 text-brand-gold focus:ring-brand-gold">
-          <span class="text-sm font-medium {% if no_escopo %}text-gray-800{% else %}text-gray-400{% endif %}">{{ _(info.rotulo) }}</span>
-        </label>
-      {% endfor %}
-    </div>
-  </div>
+      {% if erro %}
+        <p class="text-sm text-red-700 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-5">
+          {{ _("Marque pelo menos um sistema onde a pessoa tem conta.") }}
+        </p>
+      {% endif %}
 
-  <div class="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3.5 flex gap-3">
-    <i data-lucide="info" class="w-4 h-4 text-brand-gold shrink-0 mt-0.5"></i>
-    <p class="text-[13px] text-gray-600 leading-relaxed">
-      {{ _("O e-mail que sai depois diz, para cada sistema, com qual nome de acesso entrar — porque o login não é o mesmo nos três.") }}
-    </p>
-  </div>
+      <form method="post" action="{{ url_for('redefinir_senha') }}" class="space-y-5">
+        <input type="hidden" name="login" value="{{ pessoa.login }}">
 
-  <button class="bg-brand-gold hover:opacity-90 text-white text-sm font-semibold rounded-lg px-5 py-2.5 shadow-sm shadow-brand-gold/20 flex items-center gap-2">
-    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-    {{ _("Gerar e aplicar senha") }}
-  </button>
-</form>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-2 ml-1">{{ _("Onde redefinir") }}</label>
+          <div class="space-y-2">
+            {% for chave, info in dados.SISTEMAS.items() %}
+              {% set situacao = pessoa.estado.get(chave, 'sem_conta') %}
+              {% set no_escopo = chave in perfil_info.sistemas %}
+              {% set usavel = no_escopo and situacao in ('ativo', 'bloqueado') %}
+              <label class="flex items-center gap-3 p-3 rounded-xl border transition-all
+                            {% if usavel %}border-gray-200 hover:border-brand-gold/40 cursor-pointer{% else %}border-gray-100 bg-gray-50{% endif %}">
+                <input type="checkbox" name="sistemas" value="{{ chave }}" {% if usavel %}checked{% else %}disabled{% endif %}
+                       class="rounded border-gray-300 text-brand-gold focus:ring-brand-gold">
+                <span class="flex-1">
+                  <span class="block text-sm font-medium {% if usavel %}text-gray-800{% else %}text-gray-400{% endif %}">{{ _(info.rotulo) }}</span>
+                  <span class="block text-[11px] text-gray-400">
+                    {% if not no_escopo %}{{ _("fora do escopo") }}
+                    {% elif situacao == 'sem_conta' %}{{ _("Sem conta neste sistema.") }}
+                    {% elif situacao == 'a_vincular' %}{{ _("Escolha o cadastro antes de agir no ERP.") }}
+                    {% else %}<code>{{ pessoa_logins[chave] if pessoa_logins is defined else '' }}</code>{% endif %}
+                  </span>
+                </span>
+                <span class="inline-block text-[11px] font-medium rounded-full px-2.5 py-0.5 ring-1 {{ dados.ESTADOS[situacao].classe }}">{{ _(dados.ESTADOS[situacao].rotulo) }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-2 ml-1">{{ _("E-mail pessoal (destino)") }}</label>
+          <input type="text" value="{{ email_destino }}" readonly
+                 class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-500 font-mono">
+          <p class="text-[11px] text-gray-400 mt-1.5 ml-1">{{ _("Mascarado: é para lá que a senha nova vai, então só se revela o suficiente para conferir.") }}</p>
+        </div>
+
+        <div class="bg-gray-50 border border-gray-100 rounded-lg px-4 py-3.5 flex gap-3">
+          <i data-lucide="info" class="w-4 h-4 text-brand-gold shrink-0 mt-0.5"></i>
+          <p class="text-[13px] text-gray-600 leading-relaxed">
+            {{ _("O e-mail que sai depois diz, para cada sistema, com qual nome de acesso entrar — porque o login não é o mesmo nos três.") }}
+          </p>
+        </div>
+
+        <button class="w-full bg-brand-gold hover:opacity-90 text-white text-sm font-bold rounded-xl px-5 py-3.5 shadow-sm shadow-brand-gold/20 flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i> {{ _("Gerar e Enviar Nova Senha") }}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

@@ -1,0 +1,111 @@
+{# Busca de pessoas nas três bases. Variáveis: acao, origens, origem, termo, resultado. #}
+<form method="get" action="{{ acao }}" class="relative z-10">
+  <div class="flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-none w-full sm:w-64" id="dropdown-sistema-container">
+      <input type="hidden" name="origem" id="sistema-busca" value="{{ origem }}">
+
+      <button type="button" onclick="toggleDropdown()" id="btn-dropdown-sistema"
+              class="w-full pl-10 pr-8 py-3 bg-white border border-gray-200 rounded-xl hover:border-brand-gold focus:ring-2 focus:ring-brand-gold outline-none transition-all text-sm text-gray-700 flex items-center justify-between shadow-sm cursor-pointer h-[50px]">
+        <div class="flex items-center gap-2 relative w-full">
+          <span id="icone-sistema" class="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gold"></span>
+          <span id="texto-sistema" class="truncate font-bold pl-6 text-gray-800">{{ _(dados.SISTEMAS[origem].rotulo) if origem in dados.SISTEMAS else '' }}</span>
+        </div>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 shrink-0"></i>
+      </button>
+
+      <div id="lista-sistema" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 shadow-xl rounded-2xl py-2 z-[60] overflow-hidden">
+        {% for chave in origens %}
+          {% set o = dados.ORIGENS[chave] %}
+          <div onclick="selecionarOpcao('{{ chave }}', this)" data-rotulo="{{ _(dados.SISTEMAS[chave].rotulo) }}"
+               class="opcao-sistema px-4 py-3 hover:bg-amber-50 cursor-pointer flex items-center gap-3 transition-colors {% if not loop.last %}border-b border-gray-50{% endif %} group">
+            <div class="w-8 h-8 rounded-lg {{ o.classe }} flex items-center justify-center group-hover:bg-brand-gold group-hover:text-white transition-colors">
+              <i data-lucide="{{ o.icone }}" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-gray-800">{{ _(dados.SISTEMAS[chave].rotulo) }}</p>
+              <p class="text-[10px] text-gray-400 uppercase tracking-wide">{{ _(o.dica) }}</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="relative flex-1">
+      <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+      <input type="text" name="termo" value="{{ termo }}" autocomplete="off" autofocus
+             placeholder="{{ _('Mínimo 4 caracteres (login, e-mail, nome, registro)...') }}"
+             class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-gold outline-none transition-all font-medium">
+    </div>
+
+    <button type="submit"
+            class="bg-brand-gold hover:bg-amber-500 text-white px-6 py-3 rounded-xl shadow-md transition-all flex items-center justify-center group shrink-0">
+      <span class="hidden sm:inline font-bold mr-2">{{ _("Buscar") }}</span>
+      <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+    </button>
+  </div>
+</form>
+
+{% if resultado %}
+  {% if resultado.curto %}
+    <p class="text-sm text-gray-500 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mt-4">
+      {{ _("Digite pelo menos 4 caracteres: um termo curto devolve gente arbitrária, que não identifica ninguém.") }}
+    </p>
+  {% elif not resultado.candidatos %}
+    <p class="text-sm text-gray-500 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 mt-4">
+      {{ _("Ninguém encontrado em") }} <strong>{{ _(dados.SISTEMAS[origem].rotulo) }}</strong> {{ _("com") }} “{{ termo }}”.
+      {{ _("Quem não tem conta nesta base não aparece nela: tente outra base.") }}
+    </p>
+  {% else %}
+    <div class="mt-6 pt-6 border-t border-dashed border-gray-100">
+      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">
+        {{ resultado.candidatos|length }} {{ _("encontrado(s) em") }} {{ _(dados.SISTEMAS[origem].rotulo) }} — {{ _("selecione") }}
+      </p>
+      <div class="space-y-2">
+        {% for c in resultado.candidatos %}
+          <a href="{{ c.url }}" class="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-brand-gold/50 hover:bg-amber-50/40 transition-colors group">
+            <div class="p-2 bg-slate-50 text-brand-navy rounded-lg border border-slate-100"><i data-lucide="user" class="w-4 h-4"></i></div>
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-bold text-gray-800 truncate">{{ c.nome }}</p>
+              <p class="text-xs text-gray-400 truncate">
+                <code class="text-gray-500">{{ c.como }}</code> · {{ _(c.unidade) }} · {{ _(c.tipo) }}
+              </p>
+            </div>
+            {% if c.cadastros %}
+              <span class="text-[10px] font-bold uppercase tracking-wider text-sky-700 bg-sky-50 rounded px-2 py-1">{{ c.cadastros }} {{ _("cadastros no ERP") }}</span>
+            {% endif %}
+            {% if c.situacao == 'bloqueado' %}
+              <span class="text-[10px] font-bold uppercase tracking-wider text-red-700 bg-red-50 rounded px-2 py-1">{{ _("Bloqueado") }}</span>
+            {% endif %}
+            <i data-lucide="arrow-right" class="w-4 h-4 text-gray-300 group-hover:text-brand-gold shrink-0"></i>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+<script>
+  (function () {
+    var lista = document.getElementById('lista-sistema');
+    function fechar() { lista.classList.add('hidden'); }
+    window.toggleDropdown = function () { lista.classList.toggle('hidden'); };
+    window.selecionarOpcao = function (valor, el) {
+      document.getElementById('sistema-busca').value = valor;
+      document.getElementById('texto-sistema').textContent = el.dataset.rotulo;
+      var icone = el.querySelector('svg, i');
+      document.getElementById('icone-sistema').innerHTML = icone ? icone.outerHTML : '';
+      fechar();
+    };
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('#dropdown-sistema-container')) fechar();
+    });
+    // o ícone do sistema escolhido, depois que o Lucide desenhou os SVGs
+    window.addEventListener('load', function () {
+      var atual = document.querySelector('.opcao-sistema[onclick*="\'{{ origem }}\'"]');
+      if (atual) {
+        var icone = atual.querySelector('svg');
+        if (icone) document.getElementById('icone-sistema').innerHTML = icone.outerHTML;
+      }
+    });
+  })();
+</script>

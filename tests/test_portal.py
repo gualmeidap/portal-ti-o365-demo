@@ -167,7 +167,7 @@ def test_email_so_alcanca_m365_nao_vincula_erp(client):
 def test_senha_sem_email_entregue_e_parcial(client):
     entrar(client, "suporte")
     client.post("/demo/simular", data={"chave": "email_falhando"})
-    html = client.post("/alterar-senha", data={"login": "joana.prado"}).get_data(as_text=True)
+    html = client.post("/alterar-senha", data={"login": "joana.prado", "sistemas": ["m365", "diretorio", "erp"]}).get_data(as_text=True)
     assert "não foi entregue" in html
     assert portal.AUDITORIA.listar(incluir_seguranca=False)[0]["resultado"] == "parcial"
 
@@ -188,7 +188,8 @@ def test_rh_so_alcanca_gestao_de_acesso(client):
 def test_desligamento_incompleto_aparece(client):
     entrar(client, "identidade")
     html = client.get("/gestao-acesso").get_data(as_text=True)
-    assert "Desligamento incompleto" in html  # Marina: bloqueada só no Microsoft 365
+    assert "Desligamentos incompletos" in html and "Marina Coelho" in html  # bloqueada só no Microsoft 365
+    assert "Desligamento incompleto" in client.get("/gestao-acesso/marina.coelho").get_data(as_text=True)
 
 
 def test_reiniciar_volta_ao_inicio(client):
@@ -196,3 +197,107 @@ def test_reiniciar_volta_ao_inicio(client):
     client.post("/gestao-acesso/joana.prado/desativar", data={"sistema": "todos"})
     client.post("/demo/reiniciar")
     assert estado("joana.prado")["m365"] == "ativo" and not portal.FILA.itens
+
+
+# ── busca nas três bases ─────────────────────────────────────────────────────
+def test_busca_exige_minimo_de_caracteres_no_servidor(client):
+    entrar(client, "identidade")
+    html = client.get("/gestao-acesso?origem=m365&termo=ana").get_data(as_text=True)
+    assert "pelo menos 4 caracteres" in html and "Joana Prado" not in html
+
+
+def test_busca_um_resultado_vai_direto_para_a_pessoa(client):
+    entrar(client, "identidade")
+    r = client.get("/gestao-acesso?origem=m365&termo=rafael", follow_redirects=False)
+    assert r.status_code == 302 and "/gestao-acesso/rafael.antunes" in r.headers["Location"]
+
+
+def test_busca_varios_resultados_lista_candidatos(client):
+    entrar(client, "identidade")
+    html = client.get("/gestao-acesso?origem=m365&termo=Laborat").get_data(as_text=True)  # nada: unidade não é campo
+    assert "Ninguém encontrado" in html
+    html = client.get("/gestao-acesso?origem=m365&termo=meridiana").get_data(as_text=True)  # e-mail: vários
+    assert "encontrado(s) em" in html and "Camila Duarte" in html and "Rodrigo Azevedo" in html
+
+
+def test_busca_ignora_acento_e_caixa(client):
+    entrar(client, "identidade")
+    r = client.get("/gestao-acesso?origem=m365&termo=ANDRÉ FIGUEIREDO", follow_redirects=False)
+    assert r.status_code == 302 and "andre.figueiredo" in r.headers["Location"]
+
+
+def test_cada_base_acha_so_quem_tem_conta_nela(client):
+    entrar(client, "identidade")
+    # Marta só existe no ERP; Henrique só no diretório.
+    assert "Ninguém encontrado" in client.get("/gestao-acesso?origem=m365&termo=marta").get_data(as_text=True)
+    assert client.get("/gestao-acesso?origem=erp&termo=marta", follow_redirects=False).status_code == 302
+    assert "Ninguém encontrado" in client.get("/gestao-acesso?origem=erp&termo=tavares").get_data(as_text=True)
+    assert client.get("/gestao-acesso?origem=diretorio&termo=henrique.tavares", follow_redirects=False).status_code == 302
+    painel = client.get("/gestao-acesso/marta.ribeiro").get_data(as_text=True)
+    assert painel.count("Sem conta") >= 2  # nas outras duas bases
+
+
+def test_busca_por_login_de_rede_e_por_registro_no_erp(client):
+    entrar(client, "identidade")
+    r = client.get("/gestao-acesso?origem=diretorio&termo=MERIDIANA\camila", follow_redirects=False)
+    assert r.status_code == 302 and "camila.duarte" in r.headers["Location"]
+    registro = portal.PESSOAS["camila.duarte"]["registro"]
+    r = client.get("/gestao-acesso?origem=erp&termo=" + registro, follow_redirects=False)
+    assert r.status_code == 302 and "camila.duarte" in r.headers["Location"]
+
+
+def test_busca_no_erp_nao_resolve_homonimo_sozinha(client):
+    entrar(client, "identidade")
+    # Um só resultado abre a pessoa, mas o vínculo do ERP continua por escolher.
+    r = client.get("/gestao-acesso?origem=erp&termo=paulo", follow_redirects=True)
+    painel = r.get_data(as_text=True)
+    assert "Paulo Henrique Matos" in painel and "Escolher cadastro" in painel and "DEMO-7310" in painel
+    assert portal.PESSOAS["paulo.matos"]["erp_vinculo"] is None
+
+
+def test_origem_fora_do_escopo_e_recusada_no_servidor(client):
+    entrar(client, "email")  # só Microsoft 365
+    assert client.get("/gestao-acesso?origem=diretorio&termo=camila").status_code == 403
+    assert client.get("/gestao-acesso?origem=erp&termo=camila").status_code == 403
+    assert client.get("/alterar-senha?origem=erp&termo=camila").status_code == 403
+    assert portal.AUDITORIA.listar(incluir_seguranca=True)[0]["operacao"] == "Acesso negado"
+    html = client.get("/gestao-acesso").get_data(as_text=True)
+    assert "Diretório local" not in html.split("Verificar Status")[1].split("</form>")[0]  # nem na lista
+
+
+def test_origem_invalida_e_400(client):
+    entrar(client, "identidade")
+    assert client.get("/gestao-acesso?origem=ldap&termo=camila").status_code == 400
+
+
+# ── redefinição de senha com busca ───────────────────────────────────────────
+def test_senha_busca_e_mostra_so_onde_a_pessoa_tem_conta(client):
+    entrar(client, "suporte")
+    html = client.get("/alterar-senha?origem=m365&termo=sofia", follow_redirects=True).get_data(as_text=True)
+    assert "Sofia Menezes" in html and "s***@mail.example" in html
+    # Aluna sem conta no diretório: a caixa do diretório vem desabilitada.
+    diretorio = html.split('value="diretorio"')[1].split(">")[0]
+    assert "disabled" in diretorio and "checked" not in diretorio
+
+
+def test_senha_aplica_nos_sistemas_marcados(client):
+    entrar(client, "suporte")
+    client.post("/alterar-senha", data={"login": "camila.duarte", "sistemas": ["m365", "erp"]})
+    ultimo = portal.AUDITORIA.listar(incluir_seguranca=False)[0]
+    assert ultimo["operacao"] == "Redefinir senha" and ultimo["m365"] == "ok" and ultimo["erp"] == "ok"
+    assert ultimo["diretorio"] is None
+
+
+def test_senha_sem_sistema_marcado_nao_executa(client):
+    entrar(client, "suporte")
+    antes = len(portal.AUDITORIA.listar(incluir_seguranca=True))
+    html = client.post("/alterar-senha", data={"login": "camila.duarte"}).get_data(as_text=True)
+    assert "pelo menos um sistema" in html
+    assert len(portal.AUDITORIA.listar(incluir_seguranca=True)) == antes
+
+
+def test_senha_ignora_sistema_fora_do_escopo_mesmo_marcado_na_mao(client):
+    entrar(client, "email")
+    client.post("/alterar-senha", data={"login": "camila.duarte", "sistemas": ["m365", "diretorio", "erp"]})
+    ultimo = portal.AUDITORIA.listar(incluir_seguranca=False)[0]
+    assert ultimo["m365"] == "ok" and ultimo["diretorio"] is None and ultimo["erp"] is None

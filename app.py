@@ -19,7 +19,7 @@ from datetime import datetime
 
 from flask import Flask, abort, redirect, render_template, request, session, url_for
 
-from portal_demo import credenciais, dados
+from portal_demo import busca, credenciais, dados
 from portal_demo.auditoria import Auditoria
 from portal_demo.fila import FilaRetentativa
 from portal_demo.i18n import IDIOMAS, _, _h, em_ingles, idioma_atual, tr
@@ -333,10 +333,22 @@ def redefinir_senha():
     exigir_operacao(perfil, "redefinir_senha")
 
     if request.method == "GET":
-        return render_template("senha.html", pessoas=_pessoas_visiveis())
+        login = request.args.get("login")
+        if login:
+            return _form_de_senha(perfil, pessoa_ou_404(login))
+        ctx, redirecionar = _busca(perfil, "redefinir_senha")
+        if redirecionar:
+            return redirecionar
+        return render_template("senha.html", pessoa=None, **ctx)
 
     pessoa = pessoa_ou_404(request.form.get("login", ""))
-    sistemas = sistemas_pedidos(perfil)
+    # Só entram os sistemas onde a pessoa tem conta e que o perfil alcança: o que
+    # vem marcado no formulário é pedido, não permissão.
+    sistemas = [s_ for s_ in dados.SISTEMAS
+                if s_ in request.form.getlist("sistemas") and s_ in sistemas_do_perfil(perfil)
+                and pessoa["estado"].get(s_) in ("ativo", "bloqueado")]
+    if not sistemas:
+        return _form_de_senha(perfil, pessoa, erro=True)
     senha = credenciais.gerar_senha()
     orq = orquestrador()
     execucao = orq.executar(
@@ -349,10 +361,48 @@ def redefinir_senha():
                            titulo="Redefinir senha", entrega=entrega)
 
 
+def _form_de_senha(perfil, pessoa, erro=False):
+    return render_template("senha.html", pessoa=pessoa, erro=erro,
+                           pessoa_logins=orquestrador().logins_de(pessoa, list(dados.SISTEMAS)),
+                           email_destino=dados.email_pessoal_mascarado(pessoa["login"]))
+
+
+def _busca(perfil, endpoint):
+    """
+    Busca de pessoas, comum à Gestão de Acesso e à redefinição de senha.
+
+    A origem pedida é conferida contra o escopo do perfil NO SERVIDOR: um
+    perfil que só alcança o Microsoft 365 não consegue olhar o diretório nem o
+    ERP, nem forjando a URL. Com um único resultado, vai direto para a pessoa.
+    """
+    permitidas = [o for o in dados.ORIGENS if o in sistemas_do_perfil(perfil)]
+    origem = request.args.get("origem") or (permitidas[0] if permitidas else "m365")
+    termo = (request.args.get("termo") or "").strip()
+    ctx = {"origens": permitidas, "origem": origem, "termo": termo, "resultado": None, "acao": url_for(endpoint)}
+    if not termo:
+        return ctx, None
+    if origem not in dados.ORIGENS:
+        abort(400)
+    exigir_sistemas(perfil, [origem])
+    resultado = busca.buscar(termo, origem, PESSOAS, ESTADO, SIMULACOES)
+    for c in resultado["candidatos"]:
+        c["url"] = (url_for("acesso_pessoa", login=c["login"], origem=origem, termo=termo)
+                    if endpoint == "acesso" else url_for("redefinir_senha", login=c["login"]))
+    if len(resultado["candidatos"]) == 1:
+        return ctx, redirect(resultado["candidatos"][0]["url"])
+    ctx["resultado"] = resultado
+    return ctx, None
+
+
 @app.route("/gestao-acesso")
 def acesso():
-    exigir_operacao(perfil_atual(), "acesso")
-    return render_template("acesso.html", pessoas=_pessoas_visiveis())
+    perfil = perfil_atual()
+    exigir_operacao(perfil, "acesso")
+    ctx, redirecionar = _busca(perfil, "acesso")
+    if redirecionar:
+        return redirecionar
+    pendencias = [p for p in _pessoas_visiveis() if dados.desligamento_incompleto(p["estado"])]
+    return render_template("acesso.html", pendencias=pendencias, **ctx)
 
 
 @app.route("/gestao-acesso/<login>")

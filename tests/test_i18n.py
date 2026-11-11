@@ -19,7 +19,9 @@ def test_every_screen_in_english_is_fully_translated(client):
     client.get("/login")
     for perfil in dados.PERFIS:
         entrar(client, perfil)
-        for path in ("/", "/gestao-acesso", "/gestao-acesso/paulo.matos", "/gestao-acesso/marina.coelho",
+        for path in ("/", "/gestao-acesso", "/gestao-acesso?origem=m365&termo=ana", "/gestao-acesso?origem=m365&termo=meridiana",
+                     "/gestao-acesso?origem=erp&termo=zzzz", "/alterar-senha", "/alterar-senha?origem=m365&termo=meridiana",
+                     "/alterar-senha?login=sofia.menezes", "/gestao-acesso/paulo.matos", "/gestao-acesso/marina.coelho",
                      "/criar-usuario", "/criar-aluno", "/alterar-senha", "/fila", "/logs"):
             client.get(path)
     # Flows that produce results, refusals, queue items, receipts and e-mails.
@@ -38,7 +40,7 @@ def test_every_screen_in_english_is_fully_translated(client):
     entrar(client, "identidade")
     client.post("/fila/processar")
     client.get("/fila")
-    client.post("/alterar-senha", data={"login": "joana.prado"})
+    client.post("/alterar-senha", data={"login": "joana.prado", "sistemas": ["m365", "diretorio", "erp"]})
     client.get("/criar-aluno")
     entrar(client, "email")
     client.get("/criar-aluno")                                        # scope refusal screen

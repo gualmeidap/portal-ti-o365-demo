@@ -163,7 +163,45 @@ PESSOAS = [
                 {"registro": "DEMO-4821", "nome": "PAULO MATOS", "unidade": "Biblioteca Central"},
                 {"registro": "DEMO-7310", "nome": "PAULO HENRIQUE MATOS", "unidade": "Secretaria Acadêmica"},
             ]),
+    # Nem toda pessoa existe nas três bases: é por isso que a busca é feita em
+    # uma base de cada vez, e o painel cruza as outras.
+    _pessoa("Marta Ribeiro", "marta.ribeiro", "colaborador", "Secretaria Acadêmica",
+            {"m365": "sem_conta", "diretorio": "sem_conta", "erp": "ativo"}),
+    _pessoa("Henrique Tavares", "henrique.tavares", "colaborador", "Laboratório de Redes",
+            {"m365": "sem_conta", "diretorio": "ativo", "erp": "sem_conta"}),
+    _pessoa("Camila Duarte", "camila.duarte", "colaborador", "Secretaria Acadêmica",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "ativo"}),
+    _pessoa("Rodrigo Azevedo", "rodrigo.azevedo", "colaborador", "Biblioteca Central",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "ativo"}),
+    _pessoa("Larissa Monteiro", "larissa.monteiro", "colaborador", "Comunicação Institucional",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "sem_conta"}),
+    _pessoa("André Figueiredo", "andre.figueiredo", "colaborador", "Coordenação de Ensino",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "ativo"}),
+    _pessoa("Patrícia Lacerda", "patricia.lacerda", "colaborador", "Laboratório de Redes",
+            {"m365": "ativo", "diretorio": "ativo", "erp": "ativo"}),
+    _pessoa("Sofia Menezes", "sofia.menezes", "aluno", "Enfermagem",
+            {"m365": "ativo", "diretorio": "sem_conta", "erp": "ativo"}),
+    _pessoa("Vinícius Barros", "vinicius.barros", "aluno", "Arquitetura e Urbanismo",
+            {"m365": "ativo", "diretorio": "sem_conta", "erp": "ativo"}),
+    _pessoa("Beatriz Nogueira", "beatriz.nogueira", "aluno", "Direito",
+            {"m365": "ativo", "diretorio": "sem_conta", "erp": "ativo"}),
+    _pessoa("Felipe Camargo", "felipe.camargo", "aluno", "Engenharia de Computação",
+            {"m365": "bloqueado", "diretorio": "sem_conta", "erp": "ativo"}),
 ]
+
+# Bases em que a busca pode começar. O que muda entre elas é a chave: e-mail no
+# Microsoft 365, login de rede no diretório, registro ou nome no ERP.
+ORIGENS = {
+    "m365": {"dica": "Busca por e-mail ou UPN", "icone": "cloud", "classe": "bg-blue-50 text-blue-600"},
+    "diretorio": {"dica": "Busca por login de rede", "icone": "server", "classe": "bg-slate-100 text-slate-600"},
+    "erp": {"dica": "Busca por registro ou nome", "icone": "database", "classe": "bg-emerald-50 text-emerald-600"},
+}
+MIN_CARACTERES_BUSCA = 4
+
+
+def email_pessoal_mascarado(login):
+    """Para onde a senha nova vai. Mascarado: só quem pode agir precisa saber que existe."""
+    return "{}***@mail.example".format(login[0])
 
 ESTADOS = {
     "ativo": {"rotulo": "Ativo", "classe": "bg-emerald-50 text-emerald-700 ring-emerald-600/20"},

@@ -53,7 +53,13 @@ One line per action with **each system's result on the same line**. Security eve
 
 The username differs in each system (`name@domain`, `DOMAIN\name`, a short ERP user). One temporary password for all three, delivered in an e-mail that says, per system, which username to use. **If that e-mail is not delivered, the operation is "partial", not a success**: a password nobody was told about locks the person out.
 
-### 6. Real directories are inconsistent
+### 6. Search across the three databases, not a pick-list
+
+The main way technicians work is **searching for a person**, not choosing from a list of known users. In Access Management and Password Reset you pick a database (Microsoft 365 by e-mail, local directory by network login, ERP by record or name), type at least 4 characters, and get the candidates. The minimum length and the database you may search are enforced **on the server**: a profile that only reaches Microsoft 365 cannot search the directory or the ERP, even by forging the URL.
+
+Whoever has no account in a database does not appear in it, and the person's panel then shows the other databases side by side. The seeded data includes someone who exists only in the ERP and someone only in the directory. The reset screen offers only the systems where the person has an account and the profile reaches, and shows the destination e-mail masked.
+
+### 7. Real directories are inconsistent
 
 - **Incomplete offboarding** (blocked in one system, still active in another) is highlighted on the dashboard and in the list. The seeded data includes such a case.
 - **ERP homonyms**: when more than one ERP record matches a name, the portal does not guess. The technician picks one, and the choice is re-checked on the server against the candidates.
@@ -62,10 +68,10 @@ The username differs in each system (`name@domain`, `DOMAIN\name`, a short ERP u
 
 ## Try it
 
-1. As **Identity Analyst**, open *Tiago Vasconcelos* and try to block him. Then sign in as **Audit & Security** to see what was recorded and lift the suspension.
-2. *Marina Coelho* is blocked in Microsoft 365 only. As **Human Resources**, block her everywhere and check the receipt.
+1. As **Identity Analyst**, search `tiago` and try to block him. Then sign in as **Audit & Security** to see what was recorded and lift the suspension.
+2. Search `marina`: she is blocked in Microsoft 365 only. As **Human Resources**, block her everywhere and check the receipt. Switch the database to **ERP** and search `marta`: she exists only there.
 3. Turn on **ERP does not confirm its database** in the footer and block someone everywhere: the other systems are blocked immediately, the ERP goes to the **Retry Queue**. Turn it off and run the queue.
-4. Open *Paulo Henrique Matos*: two similar ERP records, and the portal makes you choose.
+4. Search `paulo` in the ERP: two similar records, and the portal makes you choose.
 5. Switch to **E-mail Operator** and go to a screen outside its scope by URL: add `#/criar-aluno` to the end of the address. The server answers 403 and logs it.
 6. Toggle **PT/EN** at any point: the audit history is translated too.
 

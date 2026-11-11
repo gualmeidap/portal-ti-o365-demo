@@ -257,6 +257,7 @@ que percorre esses mesmos fluxos com o Chrome em modo headless.
 
 | Recurso | O que mostra |
 |---|---|
+| **Busca nas três bases** | Em Gestão de Acesso e Alterar Senha, o técnico escolhe a base (Microsoft 365 por e-mail, diretório por login de rede, ERP por registro ou nome), digita ao menos 4 caracteres e recebe os candidatos, em vez de escolher numa lista. Mínimo e base permitida são regra do servidor: o perfil que só alcança o Microsoft 365 não busca no diretório nem no ERP, nem forjando a URL. Quem não tem conta numa base não aparece nela; o painel cruza as outras. |
 | **Bloqueio não espera o sistema mais lento** | Ao bloquear, cada sistema é confirmado por si. Os que confirmam a base são bloqueados na hora; o que não confirmou não é escrito (a falha fechada continua valendo) e vai para a **fila de retentativa**. Criar e redefinir senha continuam tudo ou nada. |
 | **Fila de retentativa** | Só bloqueio entra. A cada passada a política é reconferida (alvo protegido é cancelado) e a base é confirmada de novo antes de escrever. Depois de 5 tentativas o item para e fica visível. |
 | **Desligamento incompleto** | Pessoa bloqueada em um sistema e ativa em outro aparece destacada no painel e na lista. |

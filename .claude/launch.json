@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "portal-demo",
-      "runtimeExecutable": ".venv/Scripts/python.exe",
-      "runtimeArgs": ["app.py"],
-      "port": 5057
+      "name": "portal365-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8768", "-d", "D:/sistemas/portal-ti-o365-demo/_site"],
+      "port": 8768
     }
   ]
 }
