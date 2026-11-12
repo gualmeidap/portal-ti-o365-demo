@@ -1,7 +1,7 @@
+[![English](https://img.shields.io/badge/English-0A66C2?style=for-the-badge)](README.md) [![Português](https://img.shields.io/badge/Portugu%C3%AAs-lightgrey?style=for-the-badge)](README.pt-BR.md)
+
 # Portal TI: identity provisioning across Microsoft 365, a directory and an ERP (public demo)
 
-> 🇧🇷 [Versão em português](README.pt-BR.md)
->
 > **Live demo: https://gualmeidap.github.io/portal-ti-o365-demo/** (English and Portuguese, toggle at the top). It runs **entirely in your browser**: the same Flask app in this repository is loaded into [Pyodide](https://pyodide.org) (CPython compiled to WebAssembly), so there is no server, no cold start, and nothing you do leaves your machine.
 
 An internal identity-management portal I built from scratch for a university's IT team. One action creates, resets or blocks a person's access in three systems at once: **Microsoft 365**, the **on-premises directory** and the **academic/financial ERP**. It replaced a manual process where each system was handled separately, by different people, with credentials delivered in different ways.
